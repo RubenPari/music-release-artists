@@ -33,5 +33,14 @@ router
       .prefix('account')
       .as('profile')
       .use(middleware.auth())
+
+    router
+      .group(() => {
+        router.get('/redirect', [controllers.SpotifyAuth, 'redirect']).use(middleware.auth())
+        router.get('/callback', [controllers.SpotifyAuth, 'callback'])
+        router.post('/disconnect', [controllers.SpotifyAuth, 'disconnect']).use(middleware.auth())
+      })
+      .prefix('spotify')
+      .as('spotify')
   })
   .prefix('/api/v1')

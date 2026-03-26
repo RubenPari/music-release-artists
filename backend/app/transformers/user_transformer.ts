@@ -10,6 +10,14 @@ export default class UserTransformer extends BaseTransformer<User> {
       'createdAt',
       'updatedAt',
       'initials',
+      'spotifyId',
+      'displayName',
+      'avatarUrl',
+      'country',
+      'isSpotifyConnected',
+      'notificationsEnabled',
+      'notificationFrequency',
+      'notificationTypes',
     ])
   }
 }

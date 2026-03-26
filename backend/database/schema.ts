@@ -7,6 +7,29 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class ArtistSchema extends BaseModel {
+  static $columns = ['createdAt', 'followers', 'genres', 'id', 'imageUrl', 'lastSyncedAt', 'name', 'spotifyArtistId', 'updatedAt'] as const
+  $columns = ArtistSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare followers: number | null
+  @column()
+  declare genres: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare imageUrl: string | null
+  @column.dateTime()
+  declare lastSyncedAt: DateTime | null
+  @column()
+  declare name: string
+  @column()
+  declare spotifyArtistId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class AuthAccessTokenSchema extends BaseModel {
   static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
@@ -32,19 +55,100 @@ export class AuthAccessTokenSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
-export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
-  $columns = UserSchema.$columns
+export class NotificationLogSchema extends BaseModel {
+  static $columns = ['createdAt', 'errorMessage', 'id', 'releasesCount', 'sentAt', 'status', 'updatedAt', 'userId'] as const
+  $columns = NotificationLogSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare errorMessage: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare releasesCount: number
+  @column.dateTime()
+  declare sentAt: DateTime
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: number
+}
+
+export class ReleaseSchema extends BaseModel {
+  static $columns = ['artistId', 'coverUrl', 'createdAt', 'firstSeenAt', 'id', 'releaseDate', 'spotifyReleaseId', 'spotifyUrl', 'title', 'type', 'updatedAt'] as const
+  $columns = ReleaseSchema.$columns
+  @column()
+  declare artistId: number
+  @column()
+  declare coverUrl: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column.dateTime()
+  declare firstSeenAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare releaseDate: string
+  @column()
+  declare spotifyReleaseId: string
+  @column()
+  declare spotifyUrl: string
+  @column()
+  declare title: string
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class UserArtistSchema extends BaseModel {
+  static $columns = ['artistId', 'followedAt', 'id', 'userId'] as const
+  $columns = UserArtistSchema.$columns
+  @column()
+  declare artistId: number
+  @column.dateTime()
+  declare followedAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare userId: number
+}
+
+export class UserSchema extends BaseModel {
+  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'fullName', 'id', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
+  $columns = UserSchema.$columns
+  @column()
+  declare accessTokenEnc: string | null
+  @column()
+  declare avatarUrl: string | null
+  @column()
+  declare country: string | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare displayName: string | null
   @column()
   declare email: string
   @column()
   declare fullName: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare notificationFrequency: string | null
+  @column()
+  declare notificationTypes: string | null
+  @column()
+  declare notificationsEnabled: boolean | null
   @column({ serializeAs: null })
   declare password: string
+  @column()
+  declare refreshTokenEnc: string | null
+  @column()
+  declare spotifyId: string | null
+  @column.dateTime()
+  declare tokenExpiresAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }
