@@ -3,10 +3,10 @@ ARG VITE_API_URL=http://localhost:3333
 ENV VITE_API_URL=$VITE_API_URL
 WORKDIR /app
 
-COPY frontend/package.json frontend/package-lock.json* ./
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-COPY frontend/ ./
+COPY . .
 WORKDIR /app
 RUN npm run build
 
