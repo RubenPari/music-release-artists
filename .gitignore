@@ -1,0 +1,91 @@
+# ==========================================
+# Common project files and directories
+# ==========================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment files (secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs and debug
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build and compiled output
+build/
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Temporary files and cache
+tmp/
+temp/
+.cache/
+*.tsbuildinfo
+
+# ==========================================
+# IDE e editor
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.fleet
+
+# ==========================================
+# File di sistema operativo
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ==========================================
+# Backend (AdonisJS)
+# ==========================================
+backend/build/
+backend/tmp/*
+!backend/tmp/.gitkeep
+backend/.adonisjs/
+
+# ==========================================
+# Frontend (Vite)
+# ==========================================
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# ==========================================
+# Test and coverage
+# ==========================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ==========================================
+# Misc
+# ==========================================
+*.pid
+*.seed
+*.pid.lock
+*.tgz
+*.gz
