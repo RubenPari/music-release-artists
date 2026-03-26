@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,8 +11,17 @@ export function LoginPage() {
   const { login, isLoggingIn, loginError } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [searchParams] = useSearchParams()
 
+  const urlError = searchParams.get('error')
   const from = (location.state as { from?: Location })?.from?.pathname || '/dashboard'
+
+  function isNeedsVerificationError(error: unknown): boolean {
+    if (error && typeof error === 'object' && 'needsVerification' in error) {
+      return (error as { needsVerification: boolean }).needsVerification === true
+    }
+    return false
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -23,6 +32,14 @@ export function LoginPage() {
       // Error handled by useAuth
     }
   }
+
+  const errorMessage = loginError
+    ? isNeedsVerificationError(loginError)
+      ? 'Devi verificare la tua email prima di accedere.'
+      : 'Email o password non validi'
+    : urlError || null
+
+  const needsVerification = loginError && isNeedsVerificationError(loginError)
 
   return (
     <>
@@ -51,8 +68,15 @@ export function LoginPage() {
           autoComplete="current-password"
         />
 
-        {loginError && (
-          <p className="text-sm text-red-500">Email o password non validi</p>
+        {errorMessage && (
+          <div className={`rounded-lg p-3 text-sm ${needsVerification ? 'bg-[#aa3bff]/10 text-[#aa3bff]' : 'bg-red-50 text-red-500'}`}>
+            {errorMessage}
+            {needsVerification && (
+              <Link to="/verify-email" className="ml-2 font-medium hover:underline">
+                Verifica email
+              </Link>
+            )}
+          </div>
         )}
 
         <Button type="submit" className="w-full" isLoading={isLoggingIn}>

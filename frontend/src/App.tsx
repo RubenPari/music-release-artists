@@ -19,14 +19,7 @@ function App() {
         </Route>
 
         <Route element={<AppLayout />}>
-          <Route
-            path="/callback"
-            element={
-              <ProtectedRoute>
-                <CallbackPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/callback" element={<CallbackPage />} />
           <Route
             path="/dashboard"
             element={

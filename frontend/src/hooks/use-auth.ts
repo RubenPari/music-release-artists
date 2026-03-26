@@ -27,22 +27,6 @@ export function useAuth() {
     },
   })
 
-  const signupMutation = useMutation({
-    mutationFn: async (data: {
-      fullName: string
-      email: string
-      password: string
-      passwordConfirmation: string
-    }) => {
-      const response = await api.post<AuthResponse>('/auth/signup', data)
-      return response.data
-    },
-    onSuccess: (data) => {
-      setToken(data.token)
-      queryClient.setQueryData(USER_QUERY_KEY, data.user)
-    },
-  })
-
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await api.post('/auth/logout')
@@ -59,12 +43,9 @@ export function useAuth() {
     isAuthenticated: !!user,
     isSpotifyConnected: user?.isSpotifyConnected ?? false,
     login: loginMutation.mutateAsync,
-    signup: signupMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
-    isSigningUp: signupMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     loginError: loginMutation.error,
-    signupError: signupMutation.error,
   }
 }

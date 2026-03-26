@@ -1,26 +1,82 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/use-auth'
+import { useMutation } from '@tanstack/react-query'
+import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
+import type { ApiError } from '@/types'
 
 export function SignupPage() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const { signup, isSigningUp, signupError } = useAuth()
+  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  const signupMutation = useMutation({
+    mutationFn: async (data: {
+      fullName: string
+      email: string
+      password: string
+      passwordConfirmation: string
+    }) => {
+      const response = await api.post<{ message: string; email: string }>('/auth/signup', data)
+      return response.data
+    },
+    onSuccess: (data) => {
+      setRegisteredEmail(data.email)
+    },
+  })
+
+  if (registeredEmail) {
+    return (
+      <>
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <svg
+              className="h-8 w-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <CardTitle>Account creato!</CardTitle>
+        </div>
+
+        <div className="space-y-4 text-center">
+          <p className="text-[#6b6375]">
+            Abbiamo inviato un'email di verifica a{' '}
+            <strong className="text-[#08060d]">{registeredEmail}</strong>
+          </p>
+
+          <p className="text-sm text-[#6b6375]">
+            Clicca sul link nell'email per attivare il tuo account.
+          </p>
+
+          <Button
+            variant="outline"
+            className="mt-4 w-full"
+            onClick={() => navigate('/login')}
+          >
+            Vai al login
+          </Button>
+        </div>
+      </>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    try {
-      await signup({ fullName, email, password, passwordConfirmation })
-      navigate('/dashboard')
-    } catch {
-      // Error handled by useAuth
-    }
+    await signupMutation.mutateAsync({ fullName, email, password, passwordConfirmation })
   }
 
   return (
@@ -72,15 +128,13 @@ export function SignupPage() {
           autoComplete="new-password"
         />
 
-        {signupError && (
+        {signupMutation.error && (
           <p className="text-sm text-red-500">
-            {typeof signupError === 'object' && 'message' in signupError
-              ? (signupError as { message: string }).message
-              : 'Errore durante la registrazione'}
+            {(signupMutation.error as ApiError).message || 'Errore durante la registrazione'}
           </p>
         )}
 
-        <Button type="submit" className="w-full" isLoading={isSigningUp}>
+        <Button type="submit" className="w-full" isLoading={signupMutation.isPending}>
           Registrati
         </Button>
       </form>
