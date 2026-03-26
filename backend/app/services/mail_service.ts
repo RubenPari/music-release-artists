@@ -2,7 +2,6 @@ import Env from '#start/env'
 import type User from '#models/user'
 
 const MAILTRAP_API_URL = 'https://send.api.mailtrap.io/api/send'
-const SANDBOX_API_URL = 'https://sandbox.api.mailtrap.io/api/send'
 
 interface MailtrapEmail {
   to: { email: string; name?: string }[]
@@ -14,33 +13,15 @@ interface MailtrapEmail {
 
 export class MailService {
   private apiKey: string
-  private sandbox: boolean
-  private inboxId?: number
   private fromEmail: string
   private fromName: string
   private appUrl: string
 
   constructor() {
     this.apiKey = Env.get('MAILTRAP_API_KEY', '')
-    this.sandbox = Env.get('MAILTRAP_SANDBOX', 'true') === 'true'
-    const inboxId = Env.get('MAILTRAP_INBOX_ID', '')
-    this.inboxId = inboxId ? Number.parseInt(inboxId, 10) : undefined
-    this.fromEmail = Env.get('EMAIL_FROM_EMAIL', 'noreply@example.com')
-    this.fromName = Env.get('EMAIL_FROM_NAME', 'Music Release Artists')
+    this.fromEmail = Env.get('MAILTRAP_FROM_EMAIL', 'noreply@example.com')
+    this.fromName = Env.get('MAILTRAP_FROM_NAME', 'Music Release Artists')
     this.appUrl = Env.get('APP_URL', 'http://localhost:5173')
-  }
-
-  private getApiUrl(): string {
-    return this.sandbox ? SANDBOX_API_URL : MAILTRAP_API_URL
-  }
-
-  private getSandboxHeaders(): Record<string, string> {
-    if (!this.sandbox || !this.inboxId) {
-      return {}
-    }
-    return {
-      'X-Inbox-ID': this.inboxId.toString(),
-    }
   }
 
   async sendEmail(email: MailtrapEmail): Promise<void> {
@@ -50,12 +31,11 @@ export class MailService {
       return
     }
 
-    const response = await fetch(this.getApiUrl(), {
+    const response = await fetch(MAILTRAP_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.apiKey}`,
-        ...this.getSandboxHeaders(),
       },
       body: JSON.stringify(email),
     })

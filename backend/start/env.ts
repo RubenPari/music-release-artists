@@ -25,6 +25,11 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
 
+  // Mailtrap
+  MAILTRAP_API_KEY: Env.schema.string.optional(),
+  MAILTRAP_FROM_EMAIL: Env.schema.string.optional(),
+  MAILTRAP_FROM_NAME: Env.schema.string.optional(),
+
   // Spotify
   SPOTIFY_CLIENT_ID: Env.schema.string(),
   SPOTIFY_CLIENT_SECRET: Env.schema.secret(),
