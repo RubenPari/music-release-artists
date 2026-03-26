@@ -10,6 +10,7 @@
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
+import { spotifySyncLimiter } from '#start/limiter'
 
 router.get('/', () => {
   return { hello: 'world' }
@@ -42,5 +43,24 @@ router
       })
       .prefix('spotify')
       .as('spotify')
+
+    router
+      .group(() => {
+        router.get('/', [controllers.Artists, 'index'])
+        router.post('/sync', [controllers.Artists, 'sync']).use(spotifySyncLimiter)
+      })
+      .prefix('artists')
+      .as('artists')
+      .use(middleware.auth())
+
+    router
+      .group(() => {
+        router.get('/', [controllers.Releases, 'index'])
+        router.get('/latest', [controllers.Releases, 'latest'])
+        router.post('/sync', [controllers.Releases, 'sync']).use(spotifySyncLimiter)
+      })
+      .prefix('releases')
+      .as('releases')
+      .use(middleware.auth())
   })
   .prefix('/api/v1')

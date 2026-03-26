@@ -1,4 +1,7 @@
 import env from '#start/env'
+import encryption from '@adonisjs/core/services/encryption'
+import { DateTime } from 'luxon'
+import type User from '#models/user'
 
 interface SpotifyTokenResponse {
   access_token: string
@@ -144,6 +147,32 @@ export default class SpotifyService {
     })
 
     return response.json() as Promise<{ access_token: string; expires_in: number }>
+  }
+
+  /**
+   * Get a valid access token for a user, refreshing if expired.
+   */
+  static async getValidAccessToken(user: User): Promise<string> {
+    if (!user.accessTokenEnc || !user.refreshTokenEnc) {
+      throw new Error('User has no Spotify tokens')
+    }
+
+    const accessToken = encryption.decrypt<string>(user.accessTokenEnc)
+    if (!accessToken) throw new Error('Failed to decrypt access token')
+
+    if (user.tokenExpiresAt && user.tokenExpiresAt > DateTime.now().plus({ minutes: 1 })) {
+      return accessToken
+    }
+
+    const refreshToken = encryption.decrypt<string>(user.refreshTokenEnc)
+    if (!refreshToken) throw new Error('Failed to decrypt refresh token')
+
+    const result = await this.refreshAccessToken(refreshToken)
+    user.accessTokenEnc = encryption.encrypt(result.access_token)
+    user.tokenExpiresAt = DateTime.now().plus({ seconds: result.expires_in })
+    await user.save()
+
+    return result.access_token
   }
 
   private static getBasicAuth(): string {
