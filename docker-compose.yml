@@ -7,7 +7,7 @@ services:
       - "3333:3333"
     volumes:
       - ./backend:/app/backend
-      - backend_node_modules:/app/node_modules
+      - backend_node_modules:/app/backend/node_modules
     environment:
       - NODE_ENV=development
       - PORT=3333
@@ -17,7 +17,7 @@ services:
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
     working_dir: /app/backend
-    command: node ace serve --hmr
+    command: sh -c "npm ci && node ace serve --hmr"
     networks:
       - app-network
 
