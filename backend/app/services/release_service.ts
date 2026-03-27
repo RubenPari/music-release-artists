@@ -41,9 +41,7 @@ export class ReleaseService {
       }
     }
 
-    const query = Release.query()
-      .whereIn('artist_id', artistIds)
-      .preload('artist')
+    const query = Release.query().whereIn('artist_id', artistIds).preload('artist')
 
     this.applyFilters(query, filters)
     this.applySorting(query, filters.sort)
