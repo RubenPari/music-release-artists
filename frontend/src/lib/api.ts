@@ -1,15 +1,60 @@
-import type { ApiResponse, ApiError } from '@/types'
+/**
+ * Type-Safe API Client
+ * 
+ * @description Wrapper around fetch with full type safety.
+ * Provides end-to-end type inference from backend to frontend.
+ */
+
+import type {
+  ApiResponse,
+  ApiError,
+  LoginCredentials,
+  SignupCredentials,
+  AuthResponse,
+  User,
+  Release,
+  Artist,
+  PaginatedResponse,
+  ReleasesFilters,
+  NotificationSettings,
+  UpdateNotificationSettingsPayload,
+} from '@/types'
 
 const API_BASE = '/api/v1'
 
+/**
+ * Get authentication token from storage
+ */
 function getToken(): string | null {
   return localStorage.getItem('token')
 }
 
+/**
+ * Store authentication token
+ */
+export function setToken(token: string): void {
+  localStorage.setItem('token', token)
+}
+
+/**
+ * Remove authentication token
+ */
+export function removeToken(): void {
+  localStorage.removeItem('token')
+}
+
+/**
+ * HTTP methods supported by the API client
+ */
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+
+/**
+ * Generic request function with type inference
+ */
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+): Promise<T> {
   const token = getToken()
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -32,44 +77,128 @@ async function request<T>(
     throw error
   }
 
-  return { data: data as T }
+  return data as T
 }
 
+/**
+ * Type-safe API client with strongly typed methods
+ */
 export const api = {
-  get<T>(endpoint: string) {
-    return request<T>(endpoint, { method: 'GET' })
+  // ============================================
+  // Auth Endpoints
+  // ============================================
+  
+  auth: {
+    login: (credentials: LoginCredentials): Promise<AuthResponse> =>
+      request<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }),
+
+    signup: (credentials: SignupCredentials): Promise<AuthResponse> =>
+      request<AuthResponse>('/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      }),
+
+    logout: (): Promise<{ message: string }> =>
+      request<{ message: string }>('/auth/logout', { method: 'POST' }),
   },
 
-  post<T>(endpoint: string, body?: unknown) {
-    return request<T>(endpoint, {
-      method: 'POST',
-      body: body ? JSON.stringify(body) : undefined,
-    })
+  // ============================================
+  // Account Endpoints
+  // ============================================
+  
+  account: {
+    getProfile: (): Promise<User> =>
+      request<User>('/account/profile'),
   },
 
-  put<T>(endpoint: string, body?: unknown) {
-    return request<T>(endpoint, {
-      method: 'PUT',
-      body: body ? JSON.stringify(body) : undefined,
-    })
+  // ============================================
+  // Releases Endpoints
+  // ============================================
+  
+  releases: {
+    index: (params?: ReleasesFilters & { page?: number; limit?: number }): Promise<PaginatedResponse<Release>> => {
+      const searchParams = new URLSearchParams()
+      
+      if (params?.page) searchParams.set('page', params.page.toString())
+      if (params?.limit) searchParams.set('limit', params.limit.toString())
+      if (params?.type) searchParams.set('type', params.type)
+      if (params?.artistId) searchParams.set('artist_id', params.artistId)
+      if (params?.sort) searchParams.set('sort', params.sort)
+      if (params?.q) searchParams.set('q', params.q)
+
+      const queryString = searchParams.toString()
+      const endpoint = `/releases${queryString ? `?${queryString}` : ''}`
+      
+      return request<PaginatedResponse<Release>>(endpoint)
+    },
+
+    latest: (params?: { days?: number }): Promise<Release[]> => {
+      const searchParams = new URLSearchParams()
+      if (params?.days) searchParams.set('days', params.days.toString())
+      
+      const queryString = searchParams.toString()
+      const endpoint = `/releases/latest${queryString ? `?${queryString}` : ''}`
+      
+      return request<Release[]>(endpoint)
+    },
+
+    sync: (): Promise<{ message: string }> =>
+      request<{ message: string }>('/releases/sync', { method: 'POST' }),
   },
 
-  patch<T>(endpoint: string, body?: unknown) {
-    return request<T>(endpoint, {
-      method: 'PATCH',
-      body: body ? JSON.stringify(body) : undefined,
-    })
+  // ============================================
+  // Artists Endpoints
+  // ============================================
+  
+  artists: {
+    index: (params?: { page?: number; limit?: number }): Promise<PaginatedResponse<Artist>> => {
+      const searchParams = new URLSearchParams()
+      
+      if (params?.page) searchParams.set('page', params.page.toString())
+      if (params?.limit) searchParams.set('limit', params.limit.toString())
+
+      const queryString = searchParams.toString()
+      const endpoint = `/artists${queryString ? `?${queryString}` : ''}`
+      
+      return request<PaginatedResponse<Artist>>(endpoint)
+    },
+
+    sync: (): Promise<{ message: string }> =>
+      request<{ message: string }>('/artists/sync', { method: 'POST' }),
   },
 
-  delete<T>(endpoint: string) {
-    return request<T>(endpoint, { method: 'DELETE' })
+  // ============================================
+  // Settings Endpoints
+  // ============================================
+  
+  settings: {
+    getNotifications: (): Promise<NotificationSettings> =>
+      request<NotificationSettings>('/settings/notifications'),
+
+    updateNotifications: (payload: UpdateNotificationSettingsPayload): Promise<NotificationSettings> =>
+      request<NotificationSettings>('/settings/notifications', {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
   },
-}
 
-export function setToken(token: string) {
-  localStorage.setItem('token', token)
-}
+  // ============================================
+  // Spotify Endpoints
+  // ============================================
+  
+  spotify: {
+    getRedirectUrl: (): Promise<{ url: string }> =>
+      request<{ url: string }>('/spotify/redirect'),
 
-export function removeToken() {
-  localStorage.removeItem('token')
-}
+    disconnect: (): Promise<{ message: string }> =>
+      request<{ message: string }>('/spotify/disconnect', { method: 'POST' }),
+  },
+} as const
+
+/**
+ * Type exports for consumers
+ */
+export type ApiClient = typeof api
