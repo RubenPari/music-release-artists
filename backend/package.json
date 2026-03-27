@@ -67,9 +67,9 @@
     "@japa/api-client": "^3.2.1",
     "@tuyau/core": "^1.0.0",
     "@vinejs/vine": "^4.3.0",
-    "better-sqlite3": "^12.6.2",
     "luxon": "^3.7.2",
     "nodemailer": "^8.0.4",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2"
   },
   "hotHook": {
