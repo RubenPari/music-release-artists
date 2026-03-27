@@ -60,6 +60,7 @@ router
     router
       .group(() => {
         router.post('/unsubscribe', [controllers.NotificationSettings, 'unsubscribe'])
+        router.get('/history', [controllers.NotificationHistory, 'index']).use(middleware.auth())
       })
       .prefix('notifications')
       .as('notifications')
