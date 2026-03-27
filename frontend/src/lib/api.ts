@@ -32,7 +32,7 @@ async function request<T>(
     throw error
   }
 
-  return data as ApiResponse<T>
+  return { data: data as T }
 }
 
 export const api = {

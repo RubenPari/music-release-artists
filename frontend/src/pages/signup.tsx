@@ -23,7 +23,7 @@ export function SignupPage() {
       passwordConfirmation: string
     }) => {
       const response = await api.post<{ message: string; email: string }>('/auth/signup', data)
-      return response as unknown as { message: string; email: string }
+      return response.data
     },
     onSuccess: (data) => {
       setRegisteredEmail(data.email)
