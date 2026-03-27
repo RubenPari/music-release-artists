@@ -50,6 +50,22 @@ router
 
     router
       .group(() => {
+        router.get('/notifications', [controllers.NotificationSettings, 'show'])
+        router.patch('/notifications', [controllers.NotificationSettings, 'update'])
+      })
+      .prefix('settings')
+      .as('settings')
+      .use(middleware.auth())
+
+    router
+      .group(() => {
+        router.post('/unsubscribe', [controllers.NotificationSettings, 'unsubscribe'])
+      })
+      .prefix('notifications')
+      .as('notifications')
+
+    router
+      .group(() => {
         router.get('/', [controllers.Artists, 'index'])
         router.post('/sync', [controllers.Artists, 'sync']).use(spotifySyncLimiter)
       })
