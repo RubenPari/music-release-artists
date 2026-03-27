@@ -8,6 +8,7 @@ import { SignupPage } from '@/pages/signup'
 import { CallbackPage } from '@/pages/callback'
 import { DashboardPage } from '@/pages/dashboard'
 import { SettingsPage } from '@/pages/settings'
+import { NotFoundPage } from '@/pages/not-found'
 
 function App() {
   return (
@@ -39,7 +40,7 @@ function App() {
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )
