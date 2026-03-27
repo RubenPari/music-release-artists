@@ -1,4 +1,17 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: music_release_artists
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./backend
@@ -12,12 +25,19 @@ services:
       - NODE_ENV=development
       - PORT=3333
       - HOST=0.0.0.0
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=app
+      - DB_PASSWORD=app
+      - DB_DATABASE=music_release_artists
       - SMTP_HOST=${SMTP_HOST:-smtp.mailtrap.io}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USERNAME=${SMTP_USERNAME:-}
       - SMTP_PASSWORD=${SMTP_PASSWORD:-}
     working_dir: /app/backend
-    command: sh -c "npm ci && node ace serve --hmr"
+    command: sh -c "npm ci && node ace migration:run --force && node ace serve --hmr"
+    depends_on:
+      - postgres
     networks:
       - app-network
 
@@ -39,4 +59,5 @@ networks:
     driver: bridge
 
 volumes:
+  postgres_data:
   backend_node_modules:
