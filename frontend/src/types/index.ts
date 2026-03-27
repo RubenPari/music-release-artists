@@ -28,3 +28,37 @@ export interface ApiError {
   message: string
   errors?: Record<string, string[]>
 }
+
+export interface Artist {
+  id: number
+  spotifyArtistId: string
+  name: string
+  imageUrl: string | null
+  genres: string[] | null
+  followers: number
+  lastSyncedAt: string | null
+}
+
+export interface Release {
+  id: number
+  spotifyReleaseId: string
+  title: string
+  type: 'album' | 'single' | 'ep' | 'compilation'
+  coverUrl: string | null
+  releaseDate: string
+  spotifyUrl: string
+  firstSeenAt: string
+  artist: Artist
+}
+
+export interface PaginationMeta {
+  total: number
+  perPage: number
+  currentPage: number
+  lastPage: number
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  meta: PaginationMeta
+}
