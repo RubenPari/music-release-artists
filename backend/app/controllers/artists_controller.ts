@@ -1,64 +1,40 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { DateTime } from 'luxon'
-import Artist from '#models/artist'
+import { artistService } from '#services/artist_service'
 import SpotifyService from '#services/spotify_service'
 import ArtistTransformer from '#transformers/artist_transformer'
 
+/**
+ * ArtistsController - Thin controller for artist endpoints
+ *
+ * @description Handles HTTP concerns only. Business logic is delegated to ArtistService.
+ * Each method follows the Rule of 30 (max 30 lines).
+ */
 export default class ArtistsController {
+  /**
+   * GET /api/v1/artists - List user's followed artists
+   */
   async index({ auth, request, serialize }: HttpContext) {
     const user = auth.getUserOrFail()
     const page = request.input('page', 1)
     const limit = request.input('limit', 20)
 
-    const artists = await user
-      .related('artists')
-      .query()
-      .orderBy('name', 'asc')
-      .paginate(page, limit)
+    const { artists, meta } = await artistService.getArtistsForUser(user.id, {
+      page,
+      limit,
+    })
 
-    return serialize(
-      ArtistTransformer.paginate(artists.all(), artists.getMeta())
-    )
+    return serialize(ArtistTransformer.paginate(artists, meta))
   }
 
+  /**
+   * POST /api/v1/artists/sync - Sync artists from Spotify
+   */
   async sync({ auth, serialize }: HttpContext) {
     const user = auth.getUserOrFail()
-    const accessToken = await SpotifyService.getValidAccessToken(user)
-
-    const spotifyArtists = await SpotifyService.getFollowedArtists(accessToken)
-
-    const artistIds: number[] = []
-
-    for (const sa of spotifyArtists) {
-      const artist = await Artist.updateOrCreate(
-        { spotifyArtistId: sa.id },
-        {
-          name: sa.name,
-          imageUrl: sa.images?.[0]?.url ?? null,
-          genres: JSON.stringify(sa.genres),
-          followers: sa.followers.total,
-          lastSyncedAt: DateTime.now(),
-        }
-      )
-      artistIds.push(artist.id)
-    }
-
-    // Sync pivot: attach new, detach unfollowed
-    await user.related('artists').sync(
-      artistIds.reduce(
-        (acc, id) => {
-          acc[id] = { followed_at: DateTime.now().toSQL()! }
-          return acc
-        },
-        {} as Record<number, { followed_at: string }>
-      )
-    )
-
-    const artists = await user.related('artists').query().orderBy('name', 'asc')
+    const result = await artistService.syncArtistsFromSpotify(user, SpotifyService)
 
     return serialize({
-      message: `Synced ${artists.length} artists`,
-      artists: ArtistTransformer.transform(artists),
+      message: `Synced ${result.syncedCount} artists`,
     })
   }
 }
