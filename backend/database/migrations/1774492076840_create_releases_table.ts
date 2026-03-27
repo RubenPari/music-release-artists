@@ -7,7 +7,13 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').notNullable()
       table.string('spotify_release_id').notNullable().unique()
-      table.integer('artist_id').unsigned().notNullable().references('id').inTable('artists').onDelete('CASCADE')
+      table
+        .integer('artist_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('artists')
+        .onDelete('CASCADE')
       table.string('title').notNullable()
       table.string('type').notNullable()
       table.string('cover_url').nullable()

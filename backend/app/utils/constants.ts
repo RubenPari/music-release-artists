@@ -33,11 +33,7 @@ export const APP_URLS = {
   REDIRECTS,
 } as const
 
-export const SPOTIFY_SCOPES = [
-  'user-read-private',
-  'user-read-email',
-  'user-follow-read',
-].join(' ')
+export const SPOTIFY_SCOPES = ['user-read-private', 'user-read-email', 'user-follow-read'].join(' ')
 
 export const SPOTIFY_ENDPOINTS = {
   AUTHORIZE: 'https://accounts.spotify.com/authorize',

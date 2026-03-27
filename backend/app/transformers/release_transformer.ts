@@ -24,7 +24,7 @@ export class ReleaseTransformer {
       firstSeenAt: release.firstSeenAt.toISO()!,
       artist: release.artist
         ? ArtistTransformer.toObject(release.artist)
-        : {} as ReleaseDTO['artist'],
+        : ({} as ReleaseDTO['artist']),
     }
   }
 

@@ -4,7 +4,7 @@ import SpotifyService from '#services/spotify_service'
 test.group('SpotifyService', () => {
   test('should generate authorization URL', ({ assert }) => {
     const url = SpotifyService.getAuthorizationUrl('test')
-    
+
     assert.isTrue(url.includes('https://accounts.spotify.com/authorize'))
     assert.isTrue(url.includes('client_id='))
     assert.isTrue(url.includes('response_type=code'))
@@ -14,7 +14,7 @@ test.group('SpotifyService', () => {
 
   test('should include required scopes in authorization URL', ({ assert }) => {
     const url = SpotifyService.getAuthorizationUrl('test')
-    
+
     assert.isTrue(url.includes('user-read-private'))
     assert.isTrue(url.includes('user-read-email'))
     assert.isTrue(url.includes('user-follow-read'))

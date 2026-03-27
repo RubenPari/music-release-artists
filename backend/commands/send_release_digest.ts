@@ -31,9 +31,7 @@ export default class SendReleaseDigestCommand extends BaseCommand {
   async run() {
     this.logger.info('Starting release digest email job...')
 
-    const users = await User.query()
-      .where('notifications_enabled', true)
-      .whereNotNull('spotifyId')
+    const users = await User.query().where('notifications_enabled', true).whereNotNull('spotifyId')
 
     if (users.length === 0) {
       this.logger.info('No users with notifications enabled. Exiting.')
@@ -60,7 +58,7 @@ export default class SendReleaseDigestCommand extends BaseCommand {
 
         const unsubscribeToken = encryption.encrypt({
           userId: user.id,
-          purpose: 'unsubscribe'
+          purpose: 'unsubscribe',
         })
 
         await this.sendEmail(user, releases, unsubscribeToken)
@@ -70,10 +68,17 @@ export default class SendReleaseDigestCommand extends BaseCommand {
         this.logger.success(`Sent digest to ${user.email} (${releases.length} releases)`)
       } catch (error) {
         totalErrors++
-        this.logger.error(`Failed to send digest to ${user.email}: ${error instanceof Error ? error.message : 'Unknown error'}`)
-        
+        this.logger.error(
+          `Failed to send digest to ${user.email}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+
         try {
-          await this.logNotification(user, 0, 'failed', error instanceof Error ? error.message : 'Unknown error')
+          await this.logNotification(
+            user,
+            0,
+            'failed',
+            error instanceof Error ? error.message : 'Unknown error'
+          )
         } catch (logError) {
           this.logger.error(`Failed to log notification: ${logError}`)
         }
@@ -119,7 +124,9 @@ export default class SendReleaseDigestCommand extends BaseCommand {
       .first()
 
     const sinceDate = lastNotification
-      ? DateTime.fromJSDate(lastNotification.sentAt.toJSDate()).minus({ days: 1 }).toFormat('yyyy-MM-dd')
+      ? DateTime.fromJSDate(lastNotification.sentAt.toJSDate())
+          .minus({ days: 1 })
+          .toFormat('yyyy-MM-dd')
       : DateTime.now().minus({ days: 7 }).toFormat('yyyy-MM-dd')
 
     const userArtistIds = await user
@@ -128,13 +135,13 @@ export default class SendReleaseDigestCommand extends BaseCommand {
       .select('artists.id')
       .pojo<{ id: number }>()
 
-    const artistIds = userArtistIds.map(a => a.id)
+    const artistIds = userArtistIds.map((a) => a.id)
     if (artistIds.length === 0) {
       return []
     }
 
     const notificationTypes = user.notificationTypes
-      ? JSON.parse(user.notificationTypes) as string[]
+      ? (JSON.parse(user.notificationTypes) as string[])
       : ['album', 'single', 'ep', 'compilation']
 
     const releases = await Release.query()
@@ -144,7 +151,7 @@ export default class SendReleaseDigestCommand extends BaseCommand {
       .preload('artist')
       .orderBy('release_date', 'desc')
 
-    return releases.map(r => ({
+    return releases.map((r) => ({
       id: r.id,
       title: r.title,
       type: r.type,
@@ -154,11 +161,15 @@ export default class SendReleaseDigestCommand extends BaseCommand {
       artist: {
         name: r.artist.name,
         imageUrl: r.artist.imageUrl,
-      }
+      },
     }))
   }
 
-  private async sendEmail(user: User, releases: ReleaseWithArtist[], unsubscribeToken: string): Promise<void> {
+  private async sendEmail(
+    user: User,
+    releases: ReleaseWithArtist[],
+    unsubscribeToken: string
+  ): Promise<void> {
     const displayName = user.fullName || user.displayName || user.email.split('@')[0]
     const appUrl = env.get('APP_URL', 'http://localhost:5173')
 
@@ -174,12 +185,21 @@ export default class SendReleaseDigestCommand extends BaseCommand {
     })
   }
 
-  private generateEmailHtml(displayName: string, releases: ReleaseWithArtist[], dashboardUrl: string, unsubscribeUrl: string): string {
-    const releasesList = releases.slice(0, 20).map(release => `
+  private generateEmailHtml(
+    displayName: string,
+    releases: ReleaseWithArtist[],
+    dashboardUrl: string,
+    unsubscribeUrl: string
+  ): string {
+    const releasesList = releases
+      .slice(0, 20)
+      .map(
+        (release) => `
       <div style="display: flex; margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
-        ${release.coverUrl 
-          ? `<img src="${release.coverUrl}" alt="${release.title}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />`
-          : `<div style="width: 80px; height: 80px; background: #ddd; border-radius: 4px; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: #999;">No Cover</div>`
+        ${
+          release.coverUrl
+            ? `<img src="${release.coverUrl}" alt="${release.title}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 15px;" />`
+            : `<div style="width: 80px; height: 80px; background: #ddd; border-radius: 4px; margin-right: 15px; display: flex; align-items: center; justify-content: center; color: #999;">No Cover</div>`
         }
         <div>
           <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #333;">${release.title}</h3>
@@ -191,7 +211,9 @@ export default class SendReleaseDigestCommand extends BaseCommand {
           <a href="${release.spotifyUrl}" style="display: inline-block; margin-top: 8px; color: #1DB954; text-decoration: none; font-size: 14px;">Ascolta su Spotify →</a>
         </div>
       </div>
-    `).join('')
+    `
+      )
+      .join('')
 
     return `
       <!DOCTYPE html>
@@ -231,7 +253,12 @@ export default class SendReleaseDigestCommand extends BaseCommand {
     `
   }
 
-  private async logNotification(user: User, releasesCount: number, status: 'sent' | 'failed', errorMessage?: string): Promise<void> {
+  private async logNotification(
+    user: User,
+    releasesCount: number,
+    status: 'sent' | 'failed',
+    errorMessage?: string
+  ): Promise<void> {
     await NotificationLog.create({
       userId: user.id,
       sentAt: DateTime.now(),

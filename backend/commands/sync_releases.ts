@@ -81,7 +81,9 @@ export default class SyncReleasesCommand extends BaseCommand {
         this.logger.success(`User ${user.id}: Synced ${artists.length} artists`)
       } catch (error) {
         errors++
-        this.logger.error(`User ${user.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        this.logger.error(
+          `User ${user.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
       }
     }
 

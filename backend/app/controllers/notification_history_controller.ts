@@ -13,8 +13,6 @@ export default class NotificationHistoryController {
       .orderBy('sent_at', 'desc')
       .paginate(page, limit)
 
-    return serialize(
-      NotificationLogTransformer.paginate(logs.all(), logs.getMeta())
-    )
+    return serialize(NotificationLogTransformer.paginate(logs.all(), logs.getMeta()))
   }
 }

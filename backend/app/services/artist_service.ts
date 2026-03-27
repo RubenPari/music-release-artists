@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import Artist from '#models/artist'
 import User from '#models/user'
-import SpotifyService from '#services/spotify_service'
+import type SpotifyService from '#services/spotify_service'
 import { PAGINATION_DEFAULTS } from '#utils/constants'
 
 /**

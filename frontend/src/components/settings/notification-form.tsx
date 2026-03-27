@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
@@ -19,18 +19,10 @@ const frequencyOptions = [
 export function NotificationForm() {
   const { settings, isLoading, updateSettings, isUpdating } = useNotificationSettings()
 
-  const [enabled, setEnabled] = useState(false)
-  const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+  const [enabled, setEnabled] = useState(settings?.notificationsEnabled ?? false)
+  const [frequency, setFrequency] = useState<'daily' | 'weekly'>(settings?.notificationFrequency ?? 'daily')
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(settings?.notificationTypes ?? [])
   const [saved, setSaved] = useState(false)
-
-  useEffect(() => {
-    if (settings) {
-      setEnabled(settings.notificationsEnabled)
-      setFrequency(settings.notificationFrequency)
-      setSelectedTypes(settings.notificationTypes)
-    }
-  }, [settings])
 
   const handleTypeToggle = (type: string) => {
     setSelectedTypes((prev) =>

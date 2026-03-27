@@ -18,7 +18,7 @@ export class ArtistTransformer {
       name: artist.name,
       imageUrl: artist.imageUrl,
       genres: this.parseGenres(artist.genres),
-      followers: artist.followers,
+      followers: artist.followers ?? 0,
       lastSyncedAt: artist.lastSyncedAt?.toISO() ?? null,
     }
   }

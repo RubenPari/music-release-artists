@@ -19,7 +19,7 @@ export default class AccessTokenController {
     const token = await User.accessTokens.create(user)
 
     return {
-      user: UserTransformer.transform(user),
+      user: UserTransformer.toObject(user),
       token: token.value!.release(),
     }
   }

@@ -37,10 +37,7 @@ export default class ReleasesController {
     const user = auth.getUserOrFail()
     const payload = await request.validateUsing(releaseLatestValidator)
 
-    const releases = await releaseService.getLatestReleases(
-      user.id,
-      payload.days ?? 30
-    )
+    const releases = await releaseService.getLatestReleases(user.id, payload.days ?? 30)
 
     return serialize(ReleaseTransformer.transform(releases))
   }

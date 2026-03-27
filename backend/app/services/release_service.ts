@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
 import Release from '#models/release'
-import Artist from '#models/artist'
+import type Artist from '#models/artist'
 import User from '#models/user'
-import SpotifyService from '#services/spotify_service'
-import { PAGINATION_DEFAULTS, RELEASE_TYPES, SORT_OPTIONS } from '#utils/constants'
+import type SpotifyService from '#services/spotify_service'
+import { PAGINATION_DEFAULTS, type RELEASE_TYPES, SORT_OPTIONS } from '#utils/constants'
+import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 
 /**
  * ReleaseService - Business logic for release operations
@@ -20,9 +21,9 @@ export class ReleaseService {
     filters: {
       page?: number
       limit?: number
-      type?: typeof RELEASE_TYPES[number]
+      type?: (typeof RELEASE_TYPES)[number]
       artistId?: number
-      sort?: typeof SORT_OPTIONS[keyof typeof SORT_OPTIONS]
+      sort?: (typeof SORT_OPTIONS)[keyof typeof SORT_OPTIONS]
       q?: string
     }
   ): Promise<{
@@ -58,10 +59,7 @@ export class ReleaseService {
   /**
    * Get latest releases within a date range
    */
-  async getLatestReleases(
-    userId: number,
-    days: number = 30
-  ): Promise<Release[]> {
+  async getLatestReleases(userId: number, days: number = 30): Promise<Release[]> {
     const artistIds = await this.getUserArtistIds(userId)
     if (artistIds.length === 0) {
       return []
@@ -120,9 +118,9 @@ export class ReleaseService {
    * Apply filters to release query
    */
   private applyFilters(
-    query: ReturnType<typeof Release.query>,
+    query: ModelQueryBuilderContract<typeof Release>,
     filters: {
-      type?: typeof RELEASE_TYPES[number]
+      type?: (typeof RELEASE_TYPES)[number]
       artistId?: number
       q?: string
     }
@@ -137,8 +135,8 @@ export class ReleaseService {
 
     if (filters.q) {
       query.where((q) => {
-        q.whereILike('title', `%${filters.q}%`).orWhereHas('artist', (aq) => {
-          aq.whereILike('name', `%${filters.q}%`)
+        q.where('title', 'like', `%${filters.q}%`).orWhereHas('artist', (aq) => {
+          aq.where('name', 'like', `%${filters.q}%`)
         })
       })
     }
@@ -148,8 +146,8 @@ export class ReleaseService {
    * Apply sorting to release query
    */
   private applySorting(
-    query: ReturnType<typeof Release.query>,
-    sort?: typeof SORT_OPTIONS[keyof typeof SORT_OPTIONS]
+    query: ModelQueryBuilderContract<typeof Release>,
+    sort?: (typeof SORT_OPTIONS)[keyof typeof SORT_OPTIONS]
   ): void {
     const sortDir = sort === SORT_OPTIONS.RELEASE_DATE_ASC ? 'asc' : 'desc'
     query.orderBy('release_date', sortDir)
@@ -158,14 +156,17 @@ export class ReleaseService {
   /**
    * Process albums from Spotify and upsert releases
    */
-  private async processAlbums(artist: Artist, albums: Array<{
-    id: string
-    name: string
-    album_type: string
-    images?: Array<{ url: string }>
-    release_date: string
-    external_urls: { spotify: string }
-  }>): Promise<void> {
+  private async processAlbums(
+    artist: Artist,
+    albums: Array<{
+      id: string
+      name: string
+      album_type: string
+      images?: Array<{ url: string }>
+      release_date: string
+      external_urls: { spotify: string }
+    }>
+  ): Promise<void> {
     for (const album of albums) {
       await Release.updateOrCreate(
         { spotifyReleaseId: album.id },

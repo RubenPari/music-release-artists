@@ -19,4 +19,3 @@ const mailConfig = defineConfig({
 })
 
 export default mailConfig
-
