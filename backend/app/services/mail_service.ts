@@ -47,7 +47,7 @@ export class MailService {
   }
 
   async sendVerificationEmail(user: User, token: string): Promise<void> {
-    const verificationUrl = `${this.appUrl}/callback?verify=true&token=${token}`
+    const verificationUrl = `${this.appUrl}/api/v1/auth/verify-email/${token}`
 
     const html = `
 <!DOCTYPE html>
