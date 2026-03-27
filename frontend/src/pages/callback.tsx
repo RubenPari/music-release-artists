@@ -22,8 +22,8 @@ export function CallbackPage() {
 
     if (verified === 'true' && token) {
       setToken(token)
-      queryClient.invalidateQueries({ queryKey: ['user'] })
-      navigate('/dashboard?verified=true')
+      queryClient.invalidateQueries({queryKey: ['user']}).then(r => console.log(r))
+       navigate('/dashboard?verified=true')
       return
     }
 
@@ -33,7 +33,7 @@ export function CallbackPage() {
     }
 
     if (spotifyStatus === 'connected') {
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['user'] }).then(r => console.log(r))
       navigate('/dashboard?spotify=connected')
       return
     }

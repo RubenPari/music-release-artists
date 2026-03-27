@@ -30,16 +30,14 @@ async function fetchReleases(
 }
 
 /**
- * Fetch latest releases
- */
-async function fetchLatestReleases(days?: number): Promise<Release[]> {
-  return api.releases.latest({ days })
-}
-
-/**
  * Hook for fetching paginated releases
  */
-export function useReleases(filters: ReleasesFilters) {
+export function useReleases(filters: {
+  type: string | undefined;
+  artistId: string | undefined;
+  sort: string | undefined;
+  q: string | undefined
+}) {
   return useInfiniteQuery({
     queryKey: releaseKeys.list(filters),
     queryFn: ({ pageParam = 1 }) => fetchReleases({ ...filters, page: pageParam }),
@@ -50,22 +48,6 @@ export function useReleases(filters: ReleasesFilters) {
     },
   })
 }
-
-/**
- * Hook for fetching latest releases
- */
-export function useLatestReleases(days?: number) {
-  return useInfiniteQuery({
-    queryKey: releaseKeys.latest(days),
-    queryFn: ({ pageParam = 1 }) => fetchLatestReleases(days),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      // For latest, we return all in one page
-      return undefined
-    },
-  })
-}
-
 /**
  * Hook for syncing releases from Spotify
  */
@@ -80,8 +62,8 @@ export function useSyncReleases() {
     },
     onSuccess: () => {
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: releaseKeys.all })
-      queryClient.invalidateQueries({ queryKey: artistKeys.all })
+      queryClient.invalidateQueries({queryKey: releaseKeys.all}).then(r => console.log(r))
+      queryClient.invalidateQueries({ queryKey: artistKeys.all }).then(r => console.log(r))
     },
   })
 }

@@ -167,7 +167,7 @@ export function DashboardPage() {
           releases={releases}
           isLoading={isLoading}
           isFetchingNextPage={isFetchingNextPage}
-          hasNextPage={!!hasNextPage}
+          hasNextPage={hasNextPage}
           fetchNextPage={fetchNextPage}
         />
       )}

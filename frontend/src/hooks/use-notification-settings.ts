@@ -83,8 +83,8 @@ export function useNotificationSettings() {
     },
     onSettled: () => {
       // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: settingsKeys.notifications })
-    },
+      queryClient.invalidateQueries({queryKey: settingsKeys.notifications}).then(r => console.log(r))
+     },
   })
 
   return {

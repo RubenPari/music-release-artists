@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
 import type { ApiError } from '@/types'
+import * as React from "react";
 
 export function SignupPage() {
   const [fullName, setFullName] = useState('')

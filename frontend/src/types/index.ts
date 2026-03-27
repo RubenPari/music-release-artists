@@ -9,10 +9,6 @@
 // Core Types
 // ============================================
 
-export interface ApiResponse<T> {
-  data: T
-}
-
 export interface ApiError {
   message: string
   errors?: Record<string, string[]>
@@ -128,77 +124,4 @@ export interface UpdateNotificationSettingsPayload {
   enabled?: boolean
   frequency?: NotificationFrequency
   types?: ReleaseType[]
-}
-
-// ============================================
-// API Actions (for Tuyau/TRPC client)
-// ============================================
-
-export interface ApiActions {
-  // Auth
-  'auth/signup': {
-    body: SignupCredentials
-    response: AuthResponse
-  }
-  'auth/login': {
-    body: LoginCredentials
-    response: AuthResponse
-  }
-  'auth/logout': {
-    response: { message: string }
-  }
-
-  // Profile
-  'account/profile': {
-    response: User
-  }
-
-  // Releases
-  releases: {
-    index: {
-      query: ReleasesFilters & { page?: number; limit?: number }
-      response: PaginatedResponse<Release>
-    }
-    latest: {
-      query: { days?: number }
-      response: Release[]
-    }
-    sync: {
-      response: { message: string }
-    }
-  }
-
-  // Artists
-  artists: {
-    index: {
-      query: { page?: number; limit?: number }
-      response: PaginatedResponse<Artist>
-    }
-    sync: {
-      response: { message: string }
-    }
-  }
-
-  // Settings
-  settings: {
-    notifications: {
-      show: {
-        response: NotificationSettings
-      }
-      update: {
-        body: UpdateNotificationSettingsPayload
-        response: NotificationSettings
-      }
-    }
-  }
-
-  // Spotify
-  spotify: {
-    redirect: {
-      response: { url: string }
-    }
-    disconnect: {
-      response: { message: string }
-    }
-  }
 }

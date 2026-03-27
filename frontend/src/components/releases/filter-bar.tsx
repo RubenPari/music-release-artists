@@ -59,7 +59,7 @@ export function FilterBar({ searchQuery, onSearchChange }: FilterBarProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl bg-white p-4 shadow-sm">
-      <div className="flex-1 min-w-[200px]">
+      <div className="flex-1 min-w-50">
           <Input
           type="text"
           placeholder="Cerca per titolo o artista..."

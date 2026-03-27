@@ -5,7 +5,7 @@
  * with automatic type inference from the API client.
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { Artist, PaginatedResponse } from '@/types'
 
@@ -36,20 +36,5 @@ export function useArtists(params?: { page?: number; limit?: number }) {
   return useQuery({
     queryKey: artistKeys.list(params ?? {}),
     queryFn: () => fetchArtists(params),
-  })
-}
-
-/**
- * Hook for syncing artists from Spotify
- */
-export function useSyncArtists() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: () => api.artists.sync(),
-    onSuccess: () => {
-      // Invalidate all artist queries
-      queryClient.invalidateQueries({ queryKey: artistKeys.all })
-    },
   })
 }

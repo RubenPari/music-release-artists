@@ -6,6 +6,7 @@
  */
 
 import { Component, type ReactNode } from 'react'
+import * as React from "react";
 
 interface Props {
   children: ReactNode
@@ -53,7 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
       
       // Default fallback UI
       return (
-        <div className="flex min-h-[200px] items-center justify-center">
+        <div className="flex min-h-50 items-center justify-center">
           <div className="text-center">
             <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <svg
@@ -89,21 +90,4 @@ export class ErrorBoundary extends Component<Props, State> {
 
     return this.props.children
   }
-}
-
-/**
- * Async Error Boundary wrapper for Suspense boundaries
- */
-export function AsyncErrorBoundary({
-  children,
-  errorComponent,
-}: {
-  children: ReactNode
-  errorComponent?: (error: Error, reset: () => void) => ReactNode
-}) {
-  return (
-    <ErrorBoundary fallback={errorComponent}>
-      {children}
-    </ErrorBoundary>
-  )
 }

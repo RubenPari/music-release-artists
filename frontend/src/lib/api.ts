@@ -6,18 +6,16 @@
  */
 
 import type {
-  ApiResponse,
-  ApiError,
-  LoginCredentials,
-  SignupCredentials,
-  AuthResponse,
-  User,
-  Release,
   Artist,
-  PaginatedResponse,
-  ReleasesFilters,
+  AuthResponse,
+  LoginCredentials,
   NotificationSettings,
+  PaginatedResponse,
+  Release,
+  ReleasesFilters,
+  SignupCredentials,
   UpdateNotificationSettingsPayload,
+  User,
 } from '@/types'
 
 const API_BASE = '/api/v1'
@@ -44,11 +42,6 @@ export function removeToken(): void {
 }
 
 /**
- * HTTP methods supported by the API client
- */
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-
-/**
  * Generic request function with type inference
  */
 async function request<T>(
@@ -70,11 +63,10 @@ async function request<T>(
   const data = await response.json()
 
   if (!response.ok) {
-    const error: ApiError = {
+    throw {
       message: data.message || 'An error occurred',
       errors: data.errors,
     }
-    throw error
   }
 
   return data as T
@@ -183,22 +175,5 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify(payload),
       }),
-  },
-
-  // ============================================
-  // Spotify Endpoints
-  // ============================================
-  
-  spotify: {
-    getRedirectUrl: (): Promise<{ url: string }> =>
-      request<{ url: string }>('/spotify/redirect'),
-
-    disconnect: (): Promise<{ message: string }> =>
-      request<{ message: string }>('/spotify/disconnect', { method: 'POST' }),
-  },
+  }
 } as const
-
-/**
- * Type exports for consumers
- */
-export type ApiClient = typeof api

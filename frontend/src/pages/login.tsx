@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
+import * as React from "react";
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -18,7 +19,7 @@ export function LoginPage() {
 
   function isNeedsVerificationError(error: unknown): boolean {
     if (error && typeof error === 'object' && 'needsVerification' in error) {
-      return (error as { needsVerification: boolean }).needsVerification === true
+      return (error as { needsVerification: boolean }).needsVerification
     }
     return false
   }

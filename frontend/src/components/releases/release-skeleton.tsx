@@ -21,7 +21,3 @@ export function ReleaseSkeleton({ count = 1 }: ReleaseSkeletonProps) {
     </>
   )
 }
-
-export function ReleaseGridSkeleton({ count = 8 }: ReleaseSkeletonProps) {
-  return <ReleaseSkeleton count={count} />
-}
