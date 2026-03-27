@@ -1,59 +1,95 @@
+/**
+ * TanStack Query hooks for releases
+ * 
+ * @description Provides typed React Query hooks for release operations
+ * with automatic type inference from the API client.
+ */
+
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { Release, PaginatedResponse } from '@/types'
+import type { Release, PaginatedResponse, ReleasesFilters } from '@/types'
 
-interface ReleasesFilters {
-  type?: string
-  artistId?: string
-  sort?: string
-  q?: string
+/**
+ * Query key factory for releases
+ */
+export const releaseKeys = {
+  all: ['releases'] as const,
+  lists: () => [...releaseKeys.all, 'list'] as const,
+  list: (filters: ReleasesFilters) => [...releaseKeys.lists(), filters] as const,
+  latest: (days?: number) => [...releaseKeys.all, 'latest', { days }] as const,
+  sync: () => [...releaseKeys.all, 'sync'] as const,
+} as const
+
+/**
+ * Fetch releases with filters
+ */
+async function fetchReleases(
+  params: ReleasesFilters & { page?: number; limit?: number }
+): Promise<PaginatedResponse<Release>> {
+  return api.releases.index(params)
 }
 
-interface ReleasesParams extends ReleasesFilters {
-  page?: number
-  limit?: number
+/**
+ * Fetch latest releases
+ */
+async function fetchLatestReleases(days?: number): Promise<Release[]> {
+  return api.releases.latest({ days })
 }
 
-async function fetchReleases(params: ReleasesParams): Promise<PaginatedResponse<Release>> {
-  const searchParams = new URLSearchParams()
-  
-  if (params.page) searchParams.set('page', params.page.toString())
-  if (params.limit) searchParams.set('limit', params.limit.toString())
-  if (params.type) searchParams.set('type', params.type)
-  if (params.artistId) searchParams.set('artist_id', params.artistId)
-  if (params.sort) searchParams.set('sort', params.sort)
-  if (params.q) searchParams.set('q', params.q)
-
-  const queryString = searchParams.toString()
-  const endpoint = `/releases${queryString ? `?${queryString}` : ''}`
-  
-  const response = await api.get<PaginatedResponse<Release>>(endpoint)
-  return response.data
-}
-
+/**
+ * Hook for fetching paginated releases
+ */
 export function useReleases(filters: ReleasesFilters) {
   return useInfiniteQuery({
-    queryKey: ['releases', filters],
+    queryKey: releaseKeys.list(filters),
     queryFn: ({ pageParam = 1 }) => fetchReleases({ ...filters, page: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (page) => {
-      const { currentPage, lastPage: totalPages } = page.meta
-      return currentPage < totalPages ? currentPage + 1 : undefined
+      const { currentPage, lastPage } = page.meta
+      return currentPage < lastPage ? currentPage + 1 : undefined
     },
   })
 }
 
+/**
+ * Hook for fetching latest releases
+ */
+export function useLatestReleases(days?: number) {
+  return useInfiniteQuery({
+    queryKey: releaseKeys.latest(days),
+    queryFn: ({ pageParam = 1 }) => fetchLatestReleases(days),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      // For latest, we return all in one page
+      return undefined
+    },
+  })
+}
+
+/**
+ * Hook for syncing releases from Spotify
+ */
 export function useSyncReleases() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async () => {
-      await api.post('/releases/sync')
-      await api.post('/artists/sync')
+      // Sync both artists and releases
+      await api.releases.sync()
+      await api.artists.sync()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['releases'] })
-      queryClient.invalidateQueries({ queryKey: ['artists'] })
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: releaseKeys.all })
+      queryClient.invalidateQueries({ queryKey: artistKeys.all })
     },
   })
 }
+
+/**
+ * Query key factory for artists (shared)
+ */
+export const artistKeys = {
+  all: ['artists'] as const,
+  lists: () => [...artistKeys.all, 'list'] as const,
+} as const
