@@ -7,6 +7,7 @@ import { ReleaseGrid } from '@/components/releases/release-grid'
 import { useReleases, useSyncReleases } from '@/hooks/use-releases'
 import { useAuth } from '@/hooks/use-auth'
 import { StatusAlert, SpotifyIcon, MusicIcon } from './dashboard/sub-components'
+import type { ReleaseType, ReleaseSortOption } from '@/types'
 
 export function DashboardPage() {
   const [searchParams] = useSearchParams()
@@ -18,9 +19,9 @@ export function DashboardPage() {
   const error = searchParams.get('error')
 
   const filters = {
-    type: searchParams.get('type') || undefined,
+    type: (searchParams.get('type') as ReleaseType) || undefined,
     artistId: searchParams.get('artist_id') || undefined,
-    sort: searchParams.get('sort') || undefined,
+    sort: (searchParams.get('sort') as ReleaseSortOption) || undefined,
     q: searchQuery || undefined,
   }
 

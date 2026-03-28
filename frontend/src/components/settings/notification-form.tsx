@@ -3,15 +3,16 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { useNotificationSettings } from '@/hooks/use-notification-settings'
+import type { NotificationFrequency, ReleaseType } from '@/types'
 
-const RELEASE_TYPES = [
+const RELEASE_TYPES: { value: ReleaseType; label: string }[] = [
   { value: 'album', label: 'Album' },
   { value: 'single', label: 'Single' },
   { value: 'ep', label: 'EP' },
   { value: 'compilation', label: 'Compilation' },
 ]
 
-const frequencyOptions = [
+const frequencyOptions: { value: NotificationFrequency; label: string }[] = [
   { value: 'daily', label: 'Giornaliera' },
   { value: 'weekly', label: 'Settimanale' },
 ]
@@ -20,11 +21,11 @@ export function NotificationForm() {
   const { settings, isLoading, updateSettings, isUpdating } = useNotificationSettings()
 
   const [enabled, setEnabled] = useState(settings?.notificationsEnabled ?? false)
-  const [frequency, setFrequency] = useState<'daily' | 'weekly'>(settings?.notificationFrequency ?? 'daily')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>(settings?.notificationTypes ?? [])
+  const [frequency, setFrequency] = useState<NotificationFrequency>(settings?.notificationFrequency ?? 'daily')
+  const [selectedTypes, setSelectedTypes] = useState<ReleaseType[]>(settings?.notificationTypes ?? [])
   const [saved, setSaved] = useState(false)
 
-  const handleTypeToggle = (type: string) => {
+  const handleTypeToggle = (type: ReleaseType) => {
     setSelectedTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     )
@@ -99,7 +100,7 @@ export function NotificationForm() {
               <Select
                 options={frequencyOptions}
                 value={frequency}
-                onChange={(e) => setFrequency(e.target.value as 'daily' | 'weekly')}
+                onChange={(e) => setFrequency(e.target.value as NotificationFrequency)}
                 className="w-full max-w-xs"
               />
               <p className="text-xs text-[#6b6375]">

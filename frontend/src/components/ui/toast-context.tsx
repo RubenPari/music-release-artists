@@ -1,4 +1,4 @@
-import { createContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useState, useCallback, useContext, type ReactNode } from 'react'
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info'
 
@@ -37,6 +37,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
     </ToastContext.Provider>
   )
+}
+
+export function useToast() {
+  const context = useContext(ToastContext)
+  if (context === undefined) {
+    throw new Error('useToast must be used within a ToastProvider')
+  }
+  return context
 }
 
 export { ToastContext }
