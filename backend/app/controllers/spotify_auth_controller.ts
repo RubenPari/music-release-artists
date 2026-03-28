@@ -48,7 +48,7 @@ export default class SpotifyAuthController {
     user.tokenExpiresAt = DateTime.now().plus({ seconds: tokens.expires_in })
     await user.save()
 
-    return response.redirect('http://localhost:5173/settings?spotify=connected')
+    return response.redirect('http://localhost:5173/callback?spotify=connected')
   }
 
   async disconnect({ auth }: HttpContext) {

@@ -102,8 +102,10 @@ export const api = {
   // ============================================
   
   account: {
-    getProfile: (): Promise<User> =>
-      request<User>('/account/profile'),
+    getProfile: async (): Promise<User> => {
+      const response = await request<{ data: User }>('/account/profile')
+      return response.data
+    },
   },
 
   // ============================================
@@ -127,18 +129,21 @@ export const api = {
       return request<PaginatedResponse<Release>>(endpoint)
     },
 
-    latest: (params?: { days?: number }): Promise<Release[]> => {
+    latest: async (params?: { days?: number }): Promise<Release[]> => {
       const searchParams = new URLSearchParams()
       if (params?.days) searchParams.set('days', params.days.toString())
-      
+
       const queryString = searchParams.toString()
       const endpoint = `/releases/latest${queryString ? `?${queryString}` : ''}`
-      
-      return request<Release[]>(endpoint)
+
+      const response = await request<{ data: Release[] }>(endpoint)
+      return response.data
     },
 
-    sync: (): Promise<{ message: string }> =>
-      request<{ message: string }>('/releases/sync', { method: 'POST' }),
+    sync: async (): Promise<{ message: string }> => {
+      const response = await request<{ data: { message: string } }>('/releases/sync', { method: 'POST' })
+      return response.data
+    },
   },
 
   // ============================================
@@ -158,8 +163,10 @@ export const api = {
       return request<PaginatedResponse<Artist>>(endpoint)
     },
 
-    sync: (): Promise<{ message: string }> =>
-      request<{ message: string }>('/artists/sync', { method: 'POST' }),
+    sync: async (): Promise<{ message: string }> => {
+      const response = await request<{ data: { message: string } }>('/artists/sync', { method: 'POST' })
+      return response.data
+    },
   },
 
   // ============================================

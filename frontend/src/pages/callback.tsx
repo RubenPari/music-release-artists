@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { setToken } from '@/lib/api'
+import { authKeys } from '@/hooks/use-auth'
 
 export function CallbackPage() {
   const [searchParams] = useSearchParams()
@@ -9,36 +10,40 @@ export function CallbackPage() {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const verified = searchParams.get('verified')
-    const token = searchParams.get('token')
-    const verifyError = searchParams.get('verify_error')
-    const spotifyStatus = searchParams.get('spotify')
-    const spotifyError = searchParams.get('spotify_error')
+    async function handleCallback() {
+      const verified = searchParams.get('verified')
+      const token = searchParams.get('token')
+      const verifyError = searchParams.get('verify_error')
+      const spotifyStatus = searchParams.get('spotify')
+      const spotifyError = searchParams.get('spotify_error')
 
-    if (verifyError) {
-      navigate(`/login?error=${encodeURIComponent(verifyError)}`)
-      return
+      if (verifyError) {
+        navigate(`/login?error=${encodeURIComponent(verifyError)}`)
+        return
+      }
+
+      if (verified === 'true' && token) {
+        setToken(token)
+        await queryClient.invalidateQueries({queryKey: authKeys.user})
+        navigate('/dashboard?verified=true')
+        return
+      }
+
+      if (spotifyError) {
+        navigate(`/dashboard?error=${encodeURIComponent(spotifyError)}`)
+        return
+      }
+
+      if (spotifyStatus === 'connected') {
+        await queryClient.invalidateQueries({ queryKey: authKeys.user })
+        navigate('/dashboard?spotify=connected')
+        return
+      }
+
+      navigate('/dashboard')
     }
 
-    if (verified === 'true' && token) {
-      setToken(token)
-      queryClient.invalidateQueries({queryKey: ['user']}).then(r => console.log(r))
-       navigate('/dashboard?verified=true')
-      return
-    }
-
-    if (spotifyError) {
-      navigate(`/dashboard?error=${encodeURIComponent(spotifyError)}`)
-      return
-    }
-
-    if (spotifyStatus === 'connected') {
-      queryClient.invalidateQueries({ queryKey: ['user'] }).then(r => console.log(r))
-      navigate('/dashboard?spotify=connected')
-      return
-    }
-
-    navigate('/dashboard')
+    handleCallback()
   }, [searchParams, navigate, queryClient])
 
   return (

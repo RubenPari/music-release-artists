@@ -178,7 +178,7 @@ export default class SpotifyService {
   private static getBasicAuth(): string {
     const clientId = env.get('SPOTIFY_CLIENT_ID')
     const clientSecret = env.get('SPOTIFY_CLIENT_SECRET')
-    return Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+    return Buffer.from(`${clientId}:${clientSecret.release()}`).toString('base64')
   }
 
   private static async fetchWithRetry(
