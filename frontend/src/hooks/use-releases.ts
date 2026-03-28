@@ -7,7 +7,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { Release, PaginatedResponse, ReleasesFilters } from '@/types'
+import type { Release, PaginatedResponse, ReleasesFilters, ReleaseType, ReleaseSortOption } from '@/types'
 
 /**
  * Query key factory for releases
@@ -33,10 +33,10 @@ async function fetchReleases(
  * Hook for fetching paginated releases
  */
 export function useReleases(filters: {
-  type: string | undefined;
-  artistId: string | undefined;
-  sort: string | undefined;
-  q: string | undefined
+  type?: ReleaseType;
+  artistId?: string;
+  sort?: ReleaseSortOption;
+  q?: string
 }) {
   return useInfiniteQuery({
     queryKey: releaseKeys.list(filters),

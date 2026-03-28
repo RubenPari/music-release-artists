@@ -8,17 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class ArtistSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'followers',
-    'genres',
-    'id',
-    'imageUrl',
-    'lastSyncedAt',
-    'name',
-    'spotifyArtistId',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'followers', 'genres', 'id', 'imageUrl', 'lastSyncedAt', 'name', 'spotifyArtistId', 'updatedAt'] as const
   $columns = ArtistSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -41,18 +31,7 @@ export class ArtistSchema extends BaseModel {
 }
 
 export class AuthAccessTokenSchema extends BaseModel {
-  static $columns = [
-    'abilities',
-    'createdAt',
-    'expiresAt',
-    'hash',
-    'id',
-    'lastUsedAt',
-    'name',
-    'tokenableId',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['abilities', 'createdAt', 'expiresAt', 'hash', 'id', 'lastUsedAt', 'name', 'tokenableId', 'type', 'updatedAt'] as const
   $columns = AuthAccessTokenSchema.$columns
   @column()
   declare abilities: string
@@ -77,16 +56,7 @@ export class AuthAccessTokenSchema extends BaseModel {
 }
 
 export class NotificationLogSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'errorMessage',
-    'id',
-    'releasesCount',
-    'sentAt',
-    'status',
-    'updatedAt',
-    'userId',
-  ] as const
+  static $columns = ['createdAt', 'errorMessage', 'id', 'releasesCount', 'sentAt', 'status', 'updatedAt', 'userId'] as const
   $columns = NotificationLogSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -107,19 +77,7 @@ export class NotificationLogSchema extends BaseModel {
 }
 
 export class ReleaseSchema extends BaseModel {
-  static $columns = [
-    'artistId',
-    'coverUrl',
-    'createdAt',
-    'firstSeenAt',
-    'id',
-    'releaseDate',
-    'spotifyReleaseId',
-    'spotifyUrl',
-    'title',
-    'type',
-    'updatedAt',
-  ] as const
+  static $columns = ['artistId', 'coverUrl', 'createdAt', 'firstSeenAt', 'id', 'releaseDate', 'spotifyReleaseId', 'spotifyUrl', 'title', 'type', 'updatedAt'] as const
   $columns = ReleaseSchema.$columns
   @column()
   declare artistId: number
@@ -159,27 +117,7 @@ export class UserArtistSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = [
-    'accessTokenEnc',
-    'avatarUrl',
-    'country',
-    'createdAt',
-    'displayName',
-    'email',
-    'emailSentAt',
-    'emailVerificationToken',
-    'emailVerifiedAt',
-    'fullName',
-    'id',
-    'notificationFrequency',
-    'notificationTypes',
-    'notificationsEnabled',
-    'password',
-    'refreshTokenEnc',
-    'spotifyId',
-    'tokenExpiresAt',
-    'updatedAt',
-  ] as const
+  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'emailSentAt', 'emailVerificationToken', 'emailVerifiedAt', 'fullName', 'id', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare accessTokenEnc: string | null
