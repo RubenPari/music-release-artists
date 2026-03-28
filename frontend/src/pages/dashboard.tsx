@@ -6,6 +6,7 @@ import { FilterBar } from '@/components/releases/filter-bar'
 import { ReleaseGrid } from '@/components/releases/release-grid'
 import { useReleases, useSyncReleases } from '@/hooks/use-releases'
 import { useAuth } from '@/hooks/use-auth'
+import { api } from '@/lib/api'
 import { StatusAlert, SpotifyIcon, MusicIcon } from './dashboard/sub-components'
 import type { ReleaseType, ReleaseSortOption } from '@/types'
 
@@ -96,7 +97,10 @@ function SpotifyNotConnectedView({ spotifyStatus, error }: { spotifyStatus: stri
           <p className="mb-4 max-w-md text-sm text-[#6b6375]">
             Per vedere le tue release musicali, devi prima collegare il tuo account Spotify per sincronizzare gli artisti che segui.
           </p>
-          <Button onClick={() => (window.location.href = '/api/v1/spotify/redirect')}>Collega Spotify</Button>
+          <Button onClick={async () => {
+            const data = await api.spotify.getRedirectUrl()
+            window.location.href = data.data.url
+          }}>Collega Spotify</Button>
         </CardContent>
       </Card>
     </div>

@@ -175,5 +175,17 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify(payload),
       }),
+  },
+
+  // ============================================
+  // Spotify Endpoints
+  // ============================================
+
+  spotify: {
+    getRedirectUrl: (): Promise<{ data: { url: string } }> =>
+      request<{ data: { url: string } }>('/spotify/redirect'),
+
+    disconnect: (): Promise<{ message: string }> =>
+      request<{ message: string }>('/spotify/disconnect', { method: 'POST' }),
   }
 } as const

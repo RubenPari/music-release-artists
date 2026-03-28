@@ -2,22 +2,19 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { NotificationForm } from '@/components/settings/notification-form'
 import { useAuth } from '@/hooks/use-auth'
+import { api } from '@/lib/api'
 
 export function SettingsPage() {
   const { user, isLoading: isLoadingUser } = useAuth()
 
-  const handleSpotifyConnect = () => {
-    window.location.href = '/api/v1/spotify/redirect'
+  const handleSpotifyConnect = async () => {
+    const data = await api.spotify.getRedirectUrl()
+    window.location.href = data.data.url
   }
 
   const handleSpotifyDisconnect = async () => {
     try {
-      await fetch('/api/v1/spotify/disconnect', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
+      await api.spotify.disconnect()
       window.location.reload()
     } catch (err) {
       console.error('Failed to disconnect Spotify:', err)

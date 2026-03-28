@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
+import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 
 export function AppLayout() {
@@ -12,11 +13,8 @@ export function AppLayout() {
   }
 
   async function handleConnectSpotify() {
-    const response = await fetch('/api/v1/spotify/redirect')
-    const data = await response.json()
-    if (data.data?.url) {
-      window.location.href = data.data.url
-    }
+    const data = await api.spotify.getRedirectUrl()
+    window.location.href = data.data.url
   }
 
   return (
