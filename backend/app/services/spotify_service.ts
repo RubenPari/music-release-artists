@@ -2,6 +2,7 @@ import env from '#start/env'
 import encryption from '@adonisjs/core/services/encryption'
 import { DateTime } from 'luxon'
 import type User from '#models/user'
+import { SPOTIFY_ENDPOINTS, SPOTIFY_SCOPES } from '#utils/constants'
 
 interface SpotifyTokenResponse {
   access_token: string
@@ -54,22 +55,19 @@ interface SpotifyAlbumsResponse {
 }
 
 export default class SpotifyService {
-  static readonly API_BASE = 'https://api.spotify.com/v1'
-  static readonly ACCOUNTS_BASE = 'https://accounts.spotify.com'
-
   static getAuthorizationUrl(state: string): string {
     const params = new URLSearchParams({
       client_id: env.get('SPOTIFY_CLIENT_ID'),
       response_type: 'code',
       redirect_uri: env.get('SPOTIFY_REDIRECT_URI'),
-      scope: 'user-read-private user-read-email user-follow-read',
+      scope: SPOTIFY_SCOPES,
       state,
     })
-    return `${this.ACCOUNTS_BASE}/authorize?${params}`
+    return `${SPOTIFY_ENDPOINTS.AUTHORIZE}?${params}`
   }
 
   static async exchangeCode(code: string): Promise<SpotifyTokenResponse> {
-    const response = await this.fetchWithRetry(`${this.ACCOUNTS_BASE}/api/token`, {
+    const response = await this.fetchWithRetry(`${SPOTIFY_ENDPOINTS.TOKEN}`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${this.getBasicAuth()}`,
@@ -86,7 +84,7 @@ export default class SpotifyService {
   }
 
   static async getProfile(accessToken: string): Promise<SpotifyProfile> {
-    const response = await this.fetchWithRetry(`${this.API_BASE}/me`, {
+    const response = await this.fetchWithRetry(`${SPOTIFY_ENDPOINTS.API_BASE}/me`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
 
@@ -97,9 +95,12 @@ export default class SpotifyService {
     const params = new URLSearchParams({ type: 'artist', limit: '50' })
     if (after) params.set('after', after)
 
-    const response = await this.fetchWithRetry(`${this.API_BASE}/me/following?${params}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
+    const response = await this.fetchWithRetry(
+      `${SPOTIFY_ENDPOINTS.API_BASE}/me/following?${params}`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    )
 
     const data = (await response.json()) as SpotifyArtistsResponse
     const artists = data.artists.items
@@ -124,7 +125,7 @@ export default class SpotifyService {
     if (market) params.set('market', market)
 
     const response = await this.fetchWithRetry(
-      `${this.API_BASE}/artists/${artistId}/albums?${params}`,
+      `${SPOTIFY_ENDPOINTS.API_BASE}/artists/${artistId}/albums?${params}`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     )
 
@@ -135,7 +136,7 @@ export default class SpotifyService {
   static async refreshAccessToken(
     refreshToken: string
   ): Promise<{ access_token: string; expires_in: number }> {
-    const response = await this.fetchWithRetry(`${this.ACCOUNTS_BASE}/api/token`, {
+    const response = await this.fetchWithRetry(`${SPOTIFY_ENDPOINTS.TOKEN}`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${this.getBasicAuth()}`,
