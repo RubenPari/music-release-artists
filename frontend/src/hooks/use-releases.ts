@@ -36,7 +36,9 @@ export function useReleases(filters: {
   type?: ReleaseType;
   artistId?: string;
   sort?: ReleaseSortOption;
-  q?: string
+  q?: string;
+  fromDate?: string;
+  toDate?: string;
 }) {
   return useInfiniteQuery({
     queryKey: releaseKeys.list(filters),

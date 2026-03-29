@@ -90,6 +90,8 @@ export interface ReleasesFilters {
   artistId?: string
   sort?: ReleaseSortOption
   q?: string
+  fromDate?: string
+  toDate?: string
 }
 
 // ============================================
@@ -118,10 +120,12 @@ export interface NotificationSettings {
   notificationsEnabled: boolean
   notificationFrequency: NotificationFrequency
   notificationTypes: ReleaseType[]
+  notificationEmail: string
 }
 
 export interface UpdateNotificationSettingsPayload {
   enabled?: boolean
   frequency?: NotificationFrequency
   types?: ReleaseType[]
+  email?: string
 }

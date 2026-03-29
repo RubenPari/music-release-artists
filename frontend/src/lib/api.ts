@@ -122,6 +122,8 @@ export const api = {
       if (params?.artistId) searchParams.set('artist_id', params.artistId)
       if (params?.sort) searchParams.set('sort', params.sort)
       if (params?.q) searchParams.set('q', params.q)
+      if (params?.fromDate) searchParams.set('from_date', params.fromDate)
+      if (params?.toDate) searchParams.set('to_date', params.toDate)
 
       const queryString = searchParams.toString()
       const endpoint = `/releases${queryString ? `?${queryString}` : ''}`
