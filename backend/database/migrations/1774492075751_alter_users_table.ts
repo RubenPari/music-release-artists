@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       table.boolean('notifications_enabled').defaultTo(false)
       table.string('notification_frequency').defaultTo('daily')
       table.text('notification_types').nullable()
+      table.string('notification_email', 254).nullable()
       table.string('country').nullable()
     })
   }
@@ -30,6 +31,7 @@ export default class extends BaseSchema {
         'notifications_enabled',
         'notification_frequency',
         'notification_types',
+        'notification_email',
         'country'
       )
     })
