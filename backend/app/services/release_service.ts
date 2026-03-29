@@ -4,7 +4,6 @@ import Artist from '#models/artist'
 import User from '#models/user'
 import type SpotifyService from '#services/spotify_service'
 import { PAGINATION_DEFAULTS, type RELEASE_TYPES, SORT_OPTIONS } from '#utils/constants'
-import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 
 /**
  * ReleaseService - Business logic for release operations
