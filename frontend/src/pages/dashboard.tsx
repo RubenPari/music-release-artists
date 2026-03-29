@@ -24,13 +24,15 @@ export function DashboardPage() {
     artistId: searchParams.get('artist_id') || undefined,
     sort: (searchParams.get('sort') as ReleaseSortOption) || undefined,
     q: searchQuery || undefined,
+    fromDate: searchParams.get('from_date') || undefined,
+    toDate: searchParams.get('to_date') || undefined,
   }
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useReleases(filters)
   const releases = data?.pages.flatMap((page) => page.data) || []
 
   const handleSync = () => syncReleases.mutateAsync().catch(console.error)
-  const hasFiltersActive = Boolean(filters.type || filters.artistId || filters.q)
+  const hasFiltersActive = Boolean(filters.type || filters.artistId || filters.q || filters.fromDate || filters.toDate)
 
   if (!user?.isSpotifyConnected) {
     return <SpotifyNotConnectedView spotifyStatus={spotifyStatus} error={error} />
