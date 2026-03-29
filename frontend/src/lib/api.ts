@@ -113,9 +113,9 @@ export const api = {
   // ============================================
   
   releases: {
-    index: (params?: ReleasesFilters & { page?: number; limit?: number }): Promise<PaginatedResponse<Release>> => {
+    index: async (params?: ReleasesFilters & { page?: number; limit?: number }): Promise<PaginatedResponse<Release>> => {
       const searchParams = new URLSearchParams()
-      
+
       if (params?.page) searchParams.set('page', params.page.toString())
       if (params?.limit) searchParams.set('limit', params.limit.toString())
       if (params?.type) searchParams.set('type', params.type)
@@ -125,8 +125,9 @@ export const api = {
 
       const queryString = searchParams.toString()
       const endpoint = `/releases${queryString ? `?${queryString}` : ''}`
-      
-      return request<PaginatedResponse<Release>>(endpoint)
+
+      const response = await request<{ data: PaginatedResponse<Release> }>(endpoint)
+      return response.data
     },
 
     latest: async (params?: { days?: number }): Promise<Release[]> => {
@@ -151,16 +152,17 @@ export const api = {
   // ============================================
   
   artists: {
-    index: (params?: { page?: number; limit?: number }): Promise<PaginatedResponse<Artist>> => {
+    index: async (params?: { page?: number; limit?: number }): Promise<PaginatedResponse<Artist>> => {
       const searchParams = new URLSearchParams()
-      
+
       if (params?.page) searchParams.set('page', params.page.toString())
       if (params?.limit) searchParams.set('limit', params.limit.toString())
 
       const queryString = searchParams.toString()
       const endpoint = `/artists${queryString ? `?${queryString}` : ''}`
-      
-      return request<PaginatedResponse<Artist>>(endpoint)
+
+      const response = await request<{ data: PaginatedResponse<Artist> }>(endpoint)
+      return response.data
     },
 
     sync: async (): Promise<{ message: string }> => {
