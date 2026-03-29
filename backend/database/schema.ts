@@ -117,7 +117,7 @@ export class UserArtistSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'emailSentAt', 'emailVerificationToken', 'emailVerifiedAt', 'fullName', 'id', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
+  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'emailSentAt', 'emailVerificationToken', 'emailVerifiedAt', 'fullName', 'id', 'notificationEmail', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare accessTokenEnc: string | null
@@ -141,6 +141,8 @@ export class UserSchema extends BaseModel {
   declare fullName: string | null
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare notificationEmail: string | null
   @column()
   declare notificationFrequency: string | null
   @column()
