@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import Release from '#models/release'
-import type Artist from '#models/artist'
+import Artist from '#models/artist'
 import User from '#models/user'
 import type SpotifyService from '#services/spotify_service'
 import { PAGINATION_DEFAULTS, type RELEASE_TYPES, SORT_OPTIONS } from '#utils/constants'
@@ -164,7 +164,9 @@ export class ReleaseService {
   }
 
   /**
-   * Process albums from Spotify and upsert releases
+   * Process albums from Spotify and upsert releases.
+   * Resolves the correct artist using the album's primary artist from Spotify.
+   * Corrects artistId on existing releases if it doesn't match Spotify's primary artist.
    */
   private async processAlbums(
     artist: Artist,
@@ -172,25 +174,55 @@ export class ReleaseService {
       id: string
       name: string
       album_type: string
+      artists: Array<{ id: string; name: string }>
       images?: Array<{ url: string }>
       release_date: string
       external_urls: { spotify: string }
     }>
   ): Promise<void> {
     for (const album of albums) {
-      await Release.updateOrCreate(
-        { spotifyReleaseId: album.id },
-        {
-          artistId: artist.id,
+      const resolvedArtistId = await this.resolveArtistId(artist, album.artists)
+      const existing = await Release.findBy('spotifyReleaseId', album.id)
+
+      if (existing) {
+        existing.title = album.name
+        existing.type = album.album_type
+        existing.coverUrl = album.images?.[0]?.url ?? null
+        existing.releaseDate = album.release_date
+        existing.spotifyUrl = album.external_urls.spotify
+        existing.artistId = resolvedArtistId
+        await existing.save()
+      } else {
+        await Release.create({
+          spotifyReleaseId: album.id,
+          artistId: resolvedArtistId,
           title: album.name,
           type: album.album_type,
           coverUrl: album.images?.[0]?.url ?? null,
           releaseDate: album.release_date,
           spotifyUrl: album.external_urls.spotify,
           firstSeenAt: DateTime.now(),
-        }
-      )
+        })
+      }
     }
+  }
+
+  /**
+   * Resolve the correct artist ID for an album.
+   * Uses the album's primary artist from Spotify if they exist in our DB,
+   * otherwise falls back to the artist we're syncing for.
+   */
+  private async resolveArtistId(
+    syncingArtist: Artist,
+    albumArtists?: Array<{ id: string; name: string }>
+  ): Promise<number> {
+    const primarySpotifyId = albumArtists?.[0]?.id
+    if (!primarySpotifyId || primarySpotifyId === syncingArtist.spotifyArtistId) {
+      return syncingArtist.id
+    }
+
+    const primaryArtist = await Artist.findBy('spotifyArtistId', primarySpotifyId)
+    return primaryArtist ? primaryArtist.id : syncingArtist.id
   }
 }
 

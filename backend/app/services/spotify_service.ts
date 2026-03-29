@@ -40,6 +40,7 @@ interface SpotifyAlbum {
   id: string
   name: string
   album_type: string
+  artists: Array<{ id: string; name: string }>
   images: Array<{ url: string; height: number | null; width: number | null }>
   release_date: string
   release_date_precision: string
@@ -117,7 +118,7 @@ export default class SpotifyService {
     market?: string
   ): Promise<SpotifyAlbum[]> {
     const params = new URLSearchParams({
-      include_groups: 'album,single,appears_on,compilation',
+      include_groups: 'album,single',
       limit: '50',
     })
     if (market) params.set('market', market)
