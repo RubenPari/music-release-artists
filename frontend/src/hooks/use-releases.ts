@@ -7,6 +7,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import { artistKeys } from './use-artists.js'
 import type { Release, PaginatedResponse, ReleasesFilters, ReleaseType, ReleaseSortOption } from '@/types'
 
 /**
@@ -63,17 +64,10 @@ export function useSyncReleases() {
       await api.artists.sync()
     },
     onSuccess: () => {
-      // Invalidate all related queries
-      queryClient.invalidateQueries({queryKey: releaseKeys.all}).then(r => console.log(r))
-      queryClient.invalidateQueries({ queryKey: artistKeys.all }).then(r => console.log(r))
+      void queryClient.invalidateQueries({ queryKey: releaseKeys.all })
+      void queryClient.invalidateQueries({ queryKey: artistKeys.all })
     },
   })
 }
 
-/**
- * Query key factory for artists (shared)
- */
-export const artistKeys = {
-  all: ['artists'] as const,
-  lists: () => [...artistKeys.all, 'list'] as const,
-} as const
+
