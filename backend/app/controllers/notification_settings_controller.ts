@@ -13,6 +13,7 @@ export default class NotificationSettingsController {
       notificationTypes: user.notificationTypes
         ? JSON.parse(user.notificationTypes)
         : ['album', 'single', 'ep', 'compilation'],
+      notificationEmail: user.notificationEmail ?? user.email,
     }
   }
 
@@ -32,6 +33,10 @@ export default class NotificationSettingsController {
       user.notificationTypes = JSON.stringify(data.types)
     }
 
+    if (data.email !== undefined) {
+      user.notificationEmail = data.email
+    }
+
     await user.save()
 
     return {
@@ -40,6 +45,7 @@ export default class NotificationSettingsController {
       notificationTypes: user.notificationTypes
         ? JSON.parse(user.notificationTypes)
         : ['album', 'single', 'ep', 'compilation'],
+      notificationEmail: user.notificationEmail ?? user.email,
     }
   }
 

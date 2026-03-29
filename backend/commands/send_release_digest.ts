@@ -111,6 +111,8 @@ export default class SendReleaseDigestCommand extends BaseCommand {
       return hoursSinceLastNotification >= 24
     } else if (frequency === 'weekly') {
       return hoursSinceLastNotification >= 168
+    } else if (frequency === 'monthly') {
+      return hoursSinceLastNotification >= 720
     }
 
     return false
@@ -179,7 +181,7 @@ export default class SendReleaseDigestCommand extends BaseCommand {
     await Mail.send((message) => {
       message
         .from(env.get('MAIL_FROM', 'noreply@musicreleaseartists.com'))
-        .to(user.email)
+        .to(user.notificationEmail || user.email)
         .subject(`Nuove uscite musicali per ${displayName}`)
         .html(this.generateEmailHtml(displayName, releases, dashboardUrl, unsubscribeUrl))
     })
