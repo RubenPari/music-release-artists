@@ -1,14 +1,13 @@
 import { Outlet } from 'react-router-dom'
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClient } from '@/lib/query-config.js'
+import { QueryProvider } from '@/lib/query-client.js'
 import { ToastProvider } from '@/components/ui/toast-context'
 
 export function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryProvider>
       <ToastProvider>
         <Outlet />
       </ToastProvider>
-    </QueryClientProvider>
+    </QueryProvider>
   )
 }
