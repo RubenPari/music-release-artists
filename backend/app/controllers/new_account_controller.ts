@@ -4,7 +4,7 @@ import { mailService } from '#services/mail_service'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class NewAccountController {
-  async store({ request, response }: HttpContext) {
+  async store({ request, response, logger }: HttpContext) {
     const { fullName, email, password } = await request.validateUsing(signupValidator)
 
     const user = await User.create({ fullName, email, password })
@@ -14,7 +14,7 @@ export default class NewAccountController {
     try {
       await mailService.sendVerificationEmail(user, token)
     } catch (error) {
-      console.error('Failed to send verification email:', error)
+      logger.error({ err: error }, 'Failed to send verification email')
     }
 
     return response.status(201).json({

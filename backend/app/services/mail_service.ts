@@ -1,7 +1,9 @@
 import Env from '#start/env'
+import { Logger } from '@adonisjs/core/logger'
 import type User from '#models/user'
 
 const MAILTRAP_API_URL = 'https://send.api.mailtrap.io/api/send'
+const logger = new Logger()
 
 interface MailtrapEmail {
   to: { email: string; name?: string }[]
@@ -26,8 +28,7 @@ export class MailService {
 
   async sendEmail(email: MailtrapEmail): Promise<void> {
     if (!this.apiKey) {
-      console.warn('Mailtrap API key not configured. Skipping email send.')
-      console.log('Email that would be sent:', JSON.stringify(email, null, 2))
+      logger.warn('Mailtrap API key not configured. Skipping email send.')
       return
     }
 
