@@ -27,16 +27,14 @@ export function PrefetchLink({
 }: PrefetchLinkProps) {
   const handleMouseEnter = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      // Trigger prefetch for all associated queries
       prefetchQueries.forEach(({ queryKey, queryFn }) => {
-        queryClient.prefetchQuery({
+        void queryClient.prefetchQuery({
           queryKey,
           queryFn: queryFn as () => Promise<unknown>,
-          staleTime: 5 * 60 * 1000, // 5 minutes
+          staleTime: 5 * 60 * 1000,
         })
       })
 
-      // Call original handler if provided
       onMouseEnter?.(event)
     },
     [prefetchQueries, onMouseEnter]

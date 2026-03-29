@@ -24,14 +24,13 @@ export function LoginPage() {
     return false
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      await login({ email, password })
-      navigate(from, { replace: true })
-    } catch {
-      // Error handled by useAuth
-    }
+    void login({ email, password })
+      .then(() => void navigate(from, { replace: true }))
+      .catch(() => {
+        // Error handled by useAuth
+      })
   }
 
   const errorMessage = loginError

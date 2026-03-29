@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,20 +22,18 @@ const frequencyOptions: { value: NotificationFrequency; label: string }[] = [
 export function NotificationForm() {
   const { settings, isLoading, updateSettings, isUpdating } = useNotificationSettings()
 
-  const [enabled, setEnabled] = useState(settings?.notificationsEnabled ?? false)
-  const [frequency, setFrequency] = useState<NotificationFrequency>(settings?.notificationFrequency ?? 'daily')
-  const [selectedTypes, setSelectedTypes] = useState<ReleaseType[]>(settings?.notificationTypes ?? [])
-  const [email, setEmail] = useState(settings?.notificationEmail ?? '')
+  const [enabled, setEnabled] = useState(false)
+  const [frequency, setFrequency] = useState<NotificationFrequency>('daily')
+  const [selectedTypes, setSelectedTypes] = useState<ReleaseType[]>([])
+  const [email, setEmail] = useState('')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    if (settings) {
-      setEnabled(settings.notificationsEnabled)
-      setFrequency(settings.notificationFrequency)
-      setSelectedTypes(settings.notificationTypes)
-      setEmail(settings.notificationEmail)
-    }
-  }, [settings])
+  if (settings && !enabled && !frequency && selectedTypes.length === 0 && !email) {
+    setEnabled(settings.notificationsEnabled)
+    setFrequency(settings.notificationFrequency)
+    setSelectedTypes(settings.notificationTypes)
+    setEmail(settings.notificationEmail)
+  }
 
   const handleTypeToggle = (type: ReleaseType) => {
     setSelectedTypes((prev) =>
@@ -162,7 +160,7 @@ export function NotificationForm() {
         )}
 
         <div className="flex items-center gap-4">
-          <Button onClick={handleSave} isLoading={isUpdating}>
+          <Button onClick={() => void handleSave()} isLoading={isUpdating}>
             Salva preferenze
           </Button>
           {saved && (

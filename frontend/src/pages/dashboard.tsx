@@ -31,7 +31,9 @@ export function DashboardPage() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useReleases(filters)
   const releases = data?.pages.flatMap((page) => page.data) || []
 
-  const handleSync = () => syncReleases.mutateAsync().catch(console.error)
+  const handleSync = () => {
+    void syncReleases.mutateAsync().catch(console.error)
+  }
   const hasFiltersActive = Boolean(filters.type || filters.artistId || filters.q || filters.fromDate || filters.toDate)
 
   if (!user?.isSpotifyConnected) {
@@ -99,9 +101,10 @@ function SpotifyNotConnectedView({ spotifyStatus, error }: { spotifyStatus: stri
           <p className="mb-4 max-w-md text-sm text-[#6b6375]">
             Per vedere le tue release musicali, devi prima collegare il tuo account Spotify per sincronizzare gli artisti che segui.
           </p>
-          <Button onClick={async () => {
-            const data = await api.spotify.getRedirectUrl()
-            window.location.href = data.data.url
+          <Button onClick={() => {
+            void api.spotify.getRedirectUrl().then((data) => {
+              window.location.href = data.data.url
+            })
           }}>Collega Spotify</Button>
         </CardContent>
       </Card>

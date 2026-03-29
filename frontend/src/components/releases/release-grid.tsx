@@ -9,7 +9,7 @@ interface ReleaseGridProps {
   isLoading: boolean
   isFetchingNextPage: boolean
   hasNextPage: boolean
-  fetchNextPage: () => void
+  fetchNextPage: () => Promise<unknown>
 }
 
 export function ReleaseGrid({
@@ -23,7 +23,7 @@ export function ReleaseGrid({
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
+      void fetchNextPage()
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 

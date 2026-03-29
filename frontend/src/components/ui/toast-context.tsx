@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useCallback, useContext, type ReactNode } from 'react'
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info'
@@ -8,13 +9,13 @@ export interface Toast {
   variant: ToastVariant
 }
 
-interface ToastContextType {
+export interface ToastContextType {
   toasts: Toast[]
   addToast: (message: string, variant?: ToastVariant) => void
   removeToast: (id: string) => void
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+export const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -46,5 +47,3 @@ export function useToast() {
   }
   return context
 }
-
-export { ToastContext }

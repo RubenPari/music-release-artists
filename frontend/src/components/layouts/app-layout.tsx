@@ -7,12 +7,11 @@ export function AppLayout() {
   const { user, isSpotifyConnected, logout, isLoggingOut } = useAuth()
   const navigate = useNavigate()
 
-  async function handleLogout() {
-    await logout()
-    navigate('/login')
+  const handleLogout = () => {
+    void logout().then(() => navigate('/login'))
   }
 
-  async function handleConnectSpotify() {
+  const handleConnectSpotify = async () => {
     const data = await api.spotify.getRedirectUrl()
     window.location.href = data.data.url
   }
@@ -52,7 +51,7 @@ export function AppLayout() {
                 </div>
 
                 {!isSpotifyConnected && (
-                  <Button variant="outline" size="sm" onClick={handleConnectSpotify}>
+                  <Button variant="outline" size="sm" onClick={() => void handleConnectSpotify()}>
                     Collega Spotify
                   </Button>
                 )}

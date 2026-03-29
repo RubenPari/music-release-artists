@@ -18,32 +18,32 @@ export function CallbackPage() {
       const spotifyError = searchParams.get('spotify_error')
 
       if (verifyError) {
-        navigate(`/login?error=${encodeURIComponent(verifyError)}`)
+        void navigate(`/login?error=${encodeURIComponent(verifyError)}`)
         return
       }
 
       if (verified === 'true' && token) {
         setToken(token)
         await queryClient.invalidateQueries({queryKey: authKeys.user})
-        navigate('/dashboard?verified=true')
+        void navigate('/dashboard?verified=true')
         return
       }
 
       if (spotifyError) {
-        navigate(`/dashboard?error=${encodeURIComponent(spotifyError)}`)
+        void navigate(`/dashboard?error=${encodeURIComponent(spotifyError)}`)
         return
       }
 
       if (spotifyStatus === 'connected') {
         await queryClient.invalidateQueries({ queryKey: authKeys.user })
-        navigate('/dashboard?spotify=connected')
+        void navigate('/dashboard?spotify=connected')
         return
       }
 
-      navigate('/dashboard')
+      void navigate('/dashboard')
     }
 
-    handleCallback()
+    void handleCallback()
   }, [searchParams, navigate, queryClient])
 
   return (

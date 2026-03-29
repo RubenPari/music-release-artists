@@ -115,14 +115,14 @@ function ProfileSection({ user, isLoading }: { user: ReturnType<typeof useAuth>[
                 </svg>
                 Spotify collegato
               </span>
-              <Button variant="outline" size="sm" onClick={handleSpotifyDisconnect}>
+              <Button variant="outline" size="sm" onClick={() => void handleSpotifyDisconnect()}>
                 Scollega
               </Button>
             </>
           ) : (
             <>
               <span className="text-sm text-[#6b6375]">Spotify non collegato</span>
-              <Button size="sm" onClick={handleSpotifyConnect}>
+              <Button size="sm" onClick={() => void handleSpotifyConnect()}>
                 Collega Spotify
               </Button>
             </>

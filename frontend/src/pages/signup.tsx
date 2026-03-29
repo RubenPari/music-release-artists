@@ -32,7 +32,7 @@ export function SignupPage() {
 
   if (registeredEmail) {
     return (
-      <SignupSuccessView email={registeredEmail} onLoginClick={() => navigate('/login')} />
+      <SignupSuccessView email={registeredEmail} onLoginClick={() => void navigate('/login')} />
     )
   }
 
@@ -41,7 +41,7 @@ export function SignupPage() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    signupMutation.mutateAsync(formData)
+    void signupMutation.mutateAsync(formData)
   }
 
   const errorMessage = signupMutation.error
