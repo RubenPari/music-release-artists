@@ -25,6 +25,8 @@ export default class ReleasesController {
       artistId: payload.artist_id,
       sort: payload.sort,
       q: payload.q,
+      fromDate: payload.from_date,
+      toDate: payload.to_date,
     })
 
     return serialize(ReleaseTransformer.paginate(releases, meta))

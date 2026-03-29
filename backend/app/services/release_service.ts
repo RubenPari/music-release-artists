@@ -25,6 +25,8 @@ export class ReleaseService {
       artistId?: number
       sort?: (typeof SORT_OPTIONS)[keyof typeof SORT_OPTIONS]
       q?: string
+      fromDate?: string
+      toDate?: string
     }
   ): Promise<{
     releases: Release[]
@@ -121,6 +123,8 @@ export class ReleaseService {
       type?: (typeof RELEASE_TYPES)[number]
       artistId?: number
       q?: string
+      fromDate?: string
+      toDate?: string
     }
   ): void {
     if (filters.type) {
@@ -137,6 +141,14 @@ export class ReleaseService {
           aq.where('name', 'like', `%${filters.q}%`)
         })
       })
+    }
+
+    if (filters.fromDate) {
+      query.where('release_date', '>=', filters.fromDate)
+    }
+
+    if (filters.toDate) {
+      query.where('release_date', '<=', filters.toDate)
     }
   }
 
