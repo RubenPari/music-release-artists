@@ -54,6 +54,22 @@ export function FilterBar({ searchQuery, onSearchChange }: FilterBarProps) {
       <Select options={TYPE_OPTIONS} value={searchParams.get('type') || ''} onChange={(e) => updateFilter('type', e.target.value)} />
       <Select options={artistOptions} value={searchParams.get('artist_id') || ''} onChange={(e) => updateFilter('artist_id', e.target.value)} disabled={!artistsData?.data.length} />
       <Select options={SORT_OPTIONS} value={searchParams.get('sort') || 'release_date_desc'} onChange={(e) => updateFilter('sort', e.target.value)} />
+      <div className="ml-auto flex items-center gap-2">
+        <label className="text-xs text-[#6b6375] whitespace-nowrap">Dal</label>
+        <input
+          type="date"
+          value={searchParams.get('from_date') || ''}
+          onChange={(e) => updateFilter('from_date', e.target.value)}
+          className="rounded-lg border border-[#e5e4e7] px-2.5 py-1.5 text-sm text-[#08060d] focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:border-[#aa3bff]"
+        />
+        <label className="text-xs text-[#6b6375] whitespace-nowrap">Al</label>
+        <input
+          type="date"
+          value={searchParams.get('to_date') || ''}
+          onChange={(e) => updateFilter('to_date', e.target.value)}
+          className="rounded-lg border border-[#e5e4e7] px-2.5 py-1.5 text-sm text-[#08060d] focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:border-[#aa3bff]"
+        />
+      </div>
     </div>
   )
 }

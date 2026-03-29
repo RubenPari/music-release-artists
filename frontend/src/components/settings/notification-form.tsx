@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useNotificationSettings } from '@/hooks/use-notification-settings'
 import type { NotificationFrequency, ReleaseType } from '@/types'
@@ -15,6 +16,7 @@ const RELEASE_TYPES: { value: ReleaseType; label: string }[] = [
 const frequencyOptions: { value: NotificationFrequency; label: string }[] = [
   { value: 'daily', label: 'Giornaliera' },
   { value: 'weekly', label: 'Settimanale' },
+  { value: 'monthly', label: 'Mensile' },
 ]
 
 export function NotificationForm() {
@@ -23,7 +25,17 @@ export function NotificationForm() {
   const [enabled, setEnabled] = useState(settings?.notificationsEnabled ?? false)
   const [frequency, setFrequency] = useState<NotificationFrequency>(settings?.notificationFrequency ?? 'daily')
   const [selectedTypes, setSelectedTypes] = useState<ReleaseType[]>(settings?.notificationTypes ?? [])
+  const [email, setEmail] = useState(settings?.notificationEmail ?? '')
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (settings) {
+      setEnabled(settings.notificationsEnabled)
+      setFrequency(settings.notificationFrequency)
+      setSelectedTypes(settings.notificationTypes)
+      setEmail(settings.notificationEmail)
+    }
+  }, [settings])
 
   const handleTypeToggle = (type: ReleaseType) => {
     setSelectedTypes((prev) =>
@@ -37,6 +49,7 @@ export function NotificationForm() {
         enabled,
         frequency,
         types: selectedTypes,
+        email,
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
@@ -96,6 +109,20 @@ export function NotificationForm() {
         {enabled && (
           <>
             <div className="space-y-2">
+              <Input
+                label="Email destinatario"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="esempio@email.com"
+                className="max-w-xs"
+              />
+              <p className="text-xs text-[#6b6375]">
+                L'indirizzo email dove riceverai le notifiche sulle nuove uscite
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-[#08060d]">Frequenza</label>
               <Select
                 options={frequencyOptions}
@@ -104,9 +131,9 @@ export function NotificationForm() {
                 className="w-full max-w-xs"
               />
               <p className="text-xs text-[#6b6375]">
-                {frequency === 'daily'
-                  ? 'Riceverai un email ogni giorno se ci sono nuove release'
-                  : 'Riceverai un email ogni settimana con tutte le nuove release'}
+                {frequency === 'daily' && 'Riceverai un email ogni giorno se ci sono nuove release'}
+                {frequency === 'weekly' && 'Riceverai un email ogni settimana se ci sono nuove release'}
+                {frequency === 'monthly' && 'Riceverai un email ogni mese se ci sono nuove release'}
               </p>
             </div>
 

@@ -59,6 +59,12 @@ export function AppLayout() {
 
                 <div className="h-4 w-px bg-[#e5e4e7]" />
 
+                <Link to="/settings" className="text-sm text-[#6b6375] hover:text-[#08060d] transition-colors">
+                  Impostazioni
+                </Link>
+
+                <div className="h-4 w-px bg-[#e5e4e7]" />
+
                 <Button variant="ghost" size="sm" onClick={handleLogout} isLoading={isLoggingOut}>
                   Logout
                 </Button>
