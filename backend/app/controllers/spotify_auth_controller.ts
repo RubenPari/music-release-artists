@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import encryption from '@adonisjs/core/services/encryption'
 import { DateTime } from 'luxon'
+import Env from '#start/env'
 import User from '#models/user'
 import SpotifyService from '#services/spotify_service'
 
@@ -14,26 +15,28 @@ export default class SpotifyAuthController {
   }
 
   async callback({ request, response }: HttpContext) {
+    const frontendBase = Env.get('APP_URL', 'http://localhost:5173')
+
     const error = request.input('error')
     if (error) {
-      return response.redirect(`http://localhost:5173/settings?spotify_error=${error}`)
+      return response.redirect(`${frontendBase}/settings?spotify_error=${error}`)
     }
 
     const code = request.input('code')
     const state = request.input('state')
 
     if (!code || !state) {
-      return response.redirect('http://localhost:5173/settings?spotify_error=missing_params')
+      return response.redirect(`${frontendBase}/settings?spotify_error=missing_params`)
     }
 
     const userId = encryption.decrypt<number>(state)
     if (!userId) {
-      return response.redirect('http://localhost:5173/settings?spotify_error=invalid_state')
+      return response.redirect(`${frontendBase}/settings?spotify_error=invalid_state`)
     }
 
     const user = await User.find(userId)
     if (!user) {
-      return response.redirect('http://localhost:5173/settings?spotify_error=user_not_found')
+      return response.redirect(`${frontendBase}/settings?spotify_error=user_not_found`)
     }
 
     const tokens = await SpotifyService.exchangeCode(code)
@@ -48,7 +51,7 @@ export default class SpotifyAuthController {
     user.tokenExpiresAt = DateTime.now().plus({ seconds: tokens.expires_in })
     await user.save()
 
-    return response.redirect('http://localhost:5173/callback?spotify=connected')
+    return response.redirect(`${frontendBase}/callback?spotify=connected`)
   }
 
   async disconnect({ auth }: HttpContext) {
