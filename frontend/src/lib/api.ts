@@ -60,13 +60,10 @@ async function request<T>(
     headers,
   })
 
-  const data = await response.json()
+  const data = await response.json() as { message?: string; errors?: unknown }
 
   if (!response.ok) {
-    throw {
-      message: data.message || 'An error occurred',
-      errors: data.errors,
-    }
+    throw new Error(data.message || 'An error occurred')
   }
 
   return data as T
@@ -103,7 +100,7 @@ export const api = {
   
   account: {
     getProfile: async (): Promise<User> => {
-      const response = await request<{ data: User }>('/account/profile')
+      const response = await request<{ data: User }>('/account')
       return response.data
     },
   },
