@@ -12,7 +12,7 @@
     "start": "node bin/server.js",
     "build": "node ace build",
     "dev": "node ace serve --hmr",
-    "test": "node ace test",
+    "test": "node ace migration:run && node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
@@ -69,6 +69,7 @@
     "@japa/api-client": "^3.2.1",
     "@tuyau/core": "^1.0.0",
     "@vinejs/vine": "^4.3.0",
+    "better-sqlite3": "^12.8.0",
     "luxon": "^3.7.2",
     "nodemailer": "^8.0.4",
     "pg": "^8.20.0",

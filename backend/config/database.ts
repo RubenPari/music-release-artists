@@ -3,9 +3,21 @@ import env from '#start/env'
 import { defineConfig } from '@adonisjs/lucid'
 
 const dbConfig = defineConfig({
-  connection: 'pg',
+  connection: env.get('DB_CONNECTION', 'pg'),
 
   connections: {
+    sqlite: {
+      client: 'better-sqlite3',
+      connection: {
+        filename: app.inTest ? app.makePath('tmp/test.sqlite3') : app.makePath('tmp/db.sqlite3'),
+      },
+      useNullAsDefault: true,
+      migrations: {
+        naturalSort: true,
+        paths: ['database/migrations'],
+      },
+      debug: app.inDev,
+    },
     pg: {
       client: 'pg',
       connection: {
