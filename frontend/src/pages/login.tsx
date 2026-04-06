@@ -68,6 +68,12 @@ export function LoginPage() {
           autoComplete="current-password"
         />
 
+        <div className="text-right text-sm">
+          <Link to="/forgot-password" className="text-[#aa3bff] hover:underline">
+            Password dimenticata?
+          </Link>
+        </div>
+
         {errorMessage && (
           <div className={`rounded-lg p-3 text-sm ${needsVerification ? 'bg-[#aa3bff]/10 text-[#aa3bff]' : 'bg-red-50 text-red-500'}`}>
             {errorMessage}

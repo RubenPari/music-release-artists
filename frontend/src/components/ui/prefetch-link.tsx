@@ -83,7 +83,7 @@ export function PrefetchLinkToDashboard({
       prefetchQueries={[
         {
           queryKey: ['releases'],
-          queryFn: () => fetch('/api/v1/releases').then((r) => r.json()),
+          queryFn: () => fetch('/api/v1/releases/live').then((r) => r.json()),
         },
         {
           queryKey: ['artists'],

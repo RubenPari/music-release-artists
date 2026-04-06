@@ -27,7 +27,7 @@ export function SignupPage() {
   const signupMutation = useMutation({
     mutationFn: (data: SignupFormData) =>
       api.auth.signup(data),
-    onSuccess: (data) => setRegisteredEmail(data.user.email),
+    onSuccess: (data) => setRegisteredEmail(data.email),
   })
 
   if (registeredEmail) {

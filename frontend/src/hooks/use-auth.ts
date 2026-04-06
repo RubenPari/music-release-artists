@@ -38,7 +38,6 @@ async function login(credentials: LoginCredentials) {
  */
 async function signup(credentials: SignupCredentials) {
   const response = await api.auth.signup(credentials)
-  setToken(response.token)
   return response
 }
 
@@ -72,8 +71,8 @@ export function useAuth() {
 
   const signupMutation = useMutation({
     mutationFn: signup,
-    onSuccess: (data) => {
-      queryClient.setQueryData(authKeys.user, data.user)
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: authKeys.user })
     },
   })
 
