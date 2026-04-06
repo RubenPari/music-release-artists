@@ -47,7 +47,7 @@ services:
         - CMD
         - node
         - -e
-        - "fetch('http://127.0.0.1:3333/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        - "fetch('http://127.0.0.1:3333/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
       interval: 10s
       timeout: 5s
       retries: 18
@@ -73,6 +73,33 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+      - DB_CONNECTION=pg
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=app
+      - DB_PASSWORD=app
+      - DB_DATABASE=music_release_artists
+    working_dir: /app/build
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "0 8 * * * cd /app/build && node ace send:release_digest >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+        crond -f -l 2
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
 
 networks:
   app-network:
