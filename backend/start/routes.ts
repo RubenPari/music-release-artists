@@ -10,10 +10,19 @@
 import { middleware } from '#start/kernel'
 import router from '@adonisjs/core/services/router'
 import { controllers } from '#generated/controllers'
-import { spotifySyncLimiter } from '#start/limiter'
+import {
+  spotifySyncLimiter,
+  authLimiter,
+  forgotPasswordLimiter,
+  resendVerificationLimiter,
+} from '#start/limiter'
 
 router.get('/', () => {
   return { hello: 'world' }
+})
+
+router.get('/health', () => {
+  return { status: 'ok' }
 })
 
 router
@@ -21,13 +30,13 @@ router
     router
       .group(() => {
         router.post('signup', [controllers.NewAccount, 'store'])
-        router.post('login', [controllers.AccessToken, 'store'])
+        router.post('login', [controllers.AccessToken, 'store']).use(authLimiter)
         router.post('logout', [controllers.AccessToken, 'destroy']).use(middleware.auth())
-        router.post('forgot-password', [controllers.PasswordReset, 'forgot'])
+        router.post('forgot-password', [controllers.PasswordReset, 'forgot']).use(forgotPasswordLimiter)
         router.get('reset-password/:token', [controllers.PasswordReset, 'redirect'])
-        router.post('reset-password', [controllers.PasswordReset, 'reset'])
+        router.post('reset-password', [controllers.PasswordReset, 'reset']).use(authLimiter)
         router.get('verify-email/:token', [controllers.EmailVerification, 'verify'])
-        router.post('verify-email/resend', [controllers.EmailVerification, 'resendPublic'])
+        router.post('verify-email/resend', [controllers.EmailVerification, 'resendPublic']).use(resendVerificationLimiter)
       })
       .prefix('auth')
       .as('auth')
