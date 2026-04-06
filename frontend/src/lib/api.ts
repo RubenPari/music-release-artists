@@ -8,12 +8,17 @@
 import type {
   Artist,
   AuthResponse,
+  ForgotPasswordPayload,
   LoginCredentials,
+  MessageResponse,
   NotificationSettings,
   PaginatedResponse,
   Release,
   ReleasesFilters,
+  SignupResponse,
   SignupCredentials,
+  ResendVerificationEmailPayload,
+  ResetPasswordPayload,
   UpdateNotificationSettingsPayload,
   User,
 } from '@/types'
@@ -60,10 +65,12 @@ async function request<T>(
     headers,
   })
 
-  const data = await response.json() as { message?: string; errors?: unknown }
+  const data = await response.json() as { message?: string; errors?: unknown; [key: string]: unknown }
 
   if (!response.ok) {
-    throw new Error(data.message || 'An error occurred')
+    const error = new Error(data.message || 'An error occurred') as Error & Record<string, unknown>
+    Object.assign(error, data)
+    throw error
   }
 
   return data as T
@@ -84,14 +91,32 @@ export const api = {
         body: JSON.stringify(credentials),
       }),
 
-    signup: (credentials: SignupCredentials): Promise<AuthResponse> =>
-      request<AuthResponse>('/auth/signup', {
+    signup: (credentials: SignupCredentials): Promise<SignupResponse> =>
+      request<SignupResponse>('/auth/signup', {
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
 
     logout: (): Promise<{ message: string }> =>
       request<{ message: string }>('/auth/logout', { method: 'POST' }),
+
+    forgotPassword: (payload: ForgotPasswordPayload): Promise<MessageResponse> =>
+      request<MessageResponse>('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    resetPassword: (payload: ResetPasswordPayload): Promise<MessageResponse> =>
+      request<MessageResponse>('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    resendVerificationEmail: (payload: ResendVerificationEmailPayload): Promise<MessageResponse> =>
+      request<MessageResponse>('/auth/verify-email/resend', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
   },
 
   // ============================================
@@ -100,7 +125,7 @@ export const api = {
   
   account: {
     getProfile: async (): Promise<User> => {
-      const response = await request<{ data: User }>('/account')
+      const response = await request<{ data: User }>('/account/profile')
       return response.data
     },
   },
@@ -110,7 +135,7 @@ export const api = {
   // ============================================
   
   releases: {
-    index: async (params?: ReleasesFilters & { page?: number; limit?: number }): Promise<PaginatedResponse<Release>> => {
+    live: async (params?: ReleasesFilters & { page?: number; limit?: number }): Promise<PaginatedResponse<Release>> => {
       const searchParams = new URLSearchParams()
 
       if (params?.page) searchParams.set('page', params.page.toString())
@@ -123,25 +148,9 @@ export const api = {
       if (params?.toDate) searchParams.set('to_date', params.toDate)
 
       const queryString = searchParams.toString()
-      const endpoint = `/releases${queryString ? `?${queryString}` : ''}`
+      const endpoint = `/releases/live${queryString ? `?${queryString}` : ''}`
 
       const response = await request<{ data: PaginatedResponse<Release> }>(endpoint)
-      return response.data
-    },
-
-    latest: async (params?: { days?: number }): Promise<Release[]> => {
-      const searchParams = new URLSearchParams()
-      if (params?.days) searchParams.set('days', params.days.toString())
-
-      const queryString = searchParams.toString()
-      const endpoint = `/releases/latest${queryString ? `?${queryString}` : ''}`
-
-      const response = await request<{ data: Release[] }>(endpoint)
-      return response.data
-    },
-
-    sync: async (): Promise<{ message: string }> => {
-      const response = await request<{ data: { message: string } }>('/releases/sync', { method: 'POST' })
       return response.data
     },
   },

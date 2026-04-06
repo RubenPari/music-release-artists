@@ -40,6 +40,15 @@ export interface AuthResponse {
   token: string
 }
 
+export interface SignupResponse {
+  message: string
+  email: string
+}
+
+export interface MessageResponse {
+  message: string
+}
+
 export interface LoginCredentials {
   email: string
   password: string
@@ -49,6 +58,20 @@ export interface SignupCredentials {
   email: string
   password: string
   fullName?: string
+}
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  token: string
+  password: string
+  passwordConfirmation: string
+}
+
+export interface ResendVerificationEmailPayload {
+  email: string
 }
 
 // ============================================
@@ -72,14 +95,13 @@ export interface Artist {
 export type ReleaseType = 'album' | 'single' | 'ep' | 'compilation'
 
 export interface Release {
-  id: number
+  id: string
   spotifyReleaseId: string
   title: string
   type: ReleaseType
   coverUrl: string | null
   releaseDate: string
   spotifyUrl: string
-  firstSeenAt: string
   artist: Artist
 }
 
