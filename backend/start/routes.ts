@@ -27,9 +27,7 @@ router
         router.get('reset-password/:token', [controllers.PasswordReset, 'redirect'])
         router.post('reset-password', [controllers.PasswordReset, 'reset'])
         router.get('verify-email/:token', [controllers.EmailVerification, 'verify'])
-        router
-          .post('verify-email/resend', [controllers.EmailVerification, 'resend'])
-          .use(middleware.auth())
+        router.post('verify-email/resend', [controllers.EmailVerification, 'resendPublic'])
       })
       .prefix('auth')
       .as('auth')
