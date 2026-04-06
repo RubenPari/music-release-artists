@@ -1,9 +1,8 @@
 import Env from '#start/env'
-import { Logger } from '@adonisjs/core/logger'
+import logger from '@adonisjs/core/services/logger'
 import type User from '#models/user'
 
 const MAILTRAP_API_URL = 'https://send.api.mailtrap.io/api/send'
-const logger = new Logger()
 
 interface MailtrapEmail {
   to: { email: string; name?: string }[]
@@ -97,6 +96,63 @@ Questo link scade tra 24 ore.
       to: [{ email: user.email, name: user.fullName || undefined }],
       from: { email: this.fromEmail, name: this.fromName },
       subject: 'Conferma il tuo account - Music Release Artists',
+      html,
+      text,
+    })
+  }
+
+  async sendPasswordResetEmail(user: User, token: string): Promise<void> {
+    const resetUrl = `${this.appUrl}/api/v1/auth/reset-password/${token}`
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reimposta la tua password</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <h1 style="color: #aa3bff; margin: 0 0 24px; font-size: 24px;">Reimposta la tua password</h1>
+    
+    <p style="margin: 0 0 16px;">Ciao ${user.fullName || user.email},</p>
+    
+    <p style="margin: 0 0 24px;">Abbiamo ricevuto una richiesta di reimpostazione password. Clicca sul pulsante qui sotto per scegliere una nuova password:</p>
+    
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="${resetUrl}" style="display: inline-block; background: #aa3bff; color: #fff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600;">Reimposta password</a>
+    </div>
+    
+    <p style="margin: 0 0 16px; font-size: 14px; color: #666;">O copia e incolla questo link nel tuo browser:</p>
+    <p style="margin: 0 0 24px; font-size: 14px; color: #aa3bff; word-break: break-all;">${resetUrl}</p>
+    
+    <hr style="border: none; border-top: 1px solid #e5e4e7; margin: 24px 0;">
+    
+    <p style="margin: 0 0 8px; font-size: 14px; color: #999;">Se non hai richiesto questa operazione, puoi ignorare questa email.</p>
+    <p style="margin: 0; font-size: 14px; color: #999;">Questo link scade tra 2 ore.</p>
+  </div>
+</body>
+</html>
+`
+
+    const text = `
+Reimposta la tua password
+
+Ciao ${user.fullName || user.email},
+
+Abbiamo ricevuto una richiesta di reimpostazione password. Usa questo link per scegliere una nuova password:
+
+${resetUrl}
+
+Se non hai richiesto questa operazione, puoi ignorare questa email.
+Questo link scade tra 2 ore.
+`
+
+    await this.sendEmail({
+      to: [{ email: user.email, name: user.fullName || undefined }],
+      from: { email: this.fromEmail, name: this.fromName },
+      subject: 'Reimposta la password - Music Release Artists',
       html,
       text,
     })

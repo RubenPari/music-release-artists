@@ -23,6 +23,9 @@ router
         router.post('signup', [controllers.NewAccount, 'store'])
         router.post('login', [controllers.AccessToken, 'store'])
         router.post('logout', [controllers.AccessToken, 'destroy']).use(middleware.auth())
+        router.post('forgot-password', [controllers.PasswordReset, 'forgot'])
+        router.get('reset-password/:token', [controllers.PasswordReset, 'redirect'])
+        router.post('reset-password', [controllers.PasswordReset, 'reset'])
         router.get('verify-email/:token', [controllers.EmailVerification, 'verify'])
         router
           .post('verify-email/resend', [controllers.EmailVerification, 'resend'])

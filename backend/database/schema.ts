@@ -90,7 +90,7 @@ export class UserArtistSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'emailSentAt', 'emailVerificationToken', 'emailVerifiedAt', 'fullName', 'id', 'notificationEmail', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
+  static $columns = ['accessTokenEnc', 'avatarUrl', 'country', 'createdAt', 'displayName', 'email', 'emailSentAt', 'emailVerificationToken', 'emailVerifiedAt', 'fullName', 'id', 'notificationEmail', 'notificationFrequency', 'notificationTypes', 'notificationsEnabled', 'password', 'passwordResetSentAt', 'passwordResetToken', 'refreshTokenEnc', 'spotifyId', 'tokenExpiresAt', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column()
   declare accessTokenEnc: string | null
@@ -124,6 +124,10 @@ export class UserSchema extends BaseModel {
   declare notificationsEnabled: boolean | null
   @column({ serializeAs: null })
   declare password: string
+  @column.dateTime()
+  declare passwordResetSentAt: DateTime | null
+  @column()
+  declare passwordResetToken: string | null
   @column()
   declare refreshTokenEnc: string | null
   @column()
