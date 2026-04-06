@@ -76,33 +76,6 @@ export class NotificationLogSchema extends BaseModel {
   declare userId: number
 }
 
-export class ReleaseSchema extends BaseModel {
-  static $columns = ['artistId', 'coverUrl', 'createdAt', 'firstSeenAt', 'id', 'releaseDate', 'spotifyReleaseId', 'spotifyUrl', 'title', 'type', 'updatedAt'] as const
-  $columns = ReleaseSchema.$columns
-  @column()
-  declare artistId: number
-  @column()
-  declare coverUrl: string | null
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-  @column.dateTime()
-  declare firstSeenAt: DateTime
-  @column({ isPrimary: true })
-  declare id: number
-  @column()
-  declare releaseDate: string
-  @column()
-  declare spotifyReleaseId: string
-  @column()
-  declare spotifyUrl: string
-  @column()
-  declare title: string
-  @column()
-  declare type: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
-}
-
 export class UserArtistSchema extends BaseModel {
   static $columns = ['artistId', 'followedAt', 'id', 'userId'] as const
   $columns = UserArtistSchema.$columns

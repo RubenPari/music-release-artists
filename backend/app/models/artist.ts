@@ -1,8 +1,7 @@
 import { ArtistSchema } from '#database/schema'
-import { manyToMany, hasMany } from '@adonisjs/lucid/orm'
-import type { ManyToMany, HasMany } from '@adonisjs/lucid/types/relations'
+import { manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import User from '#models/user'
-import Release from '#models/release'
 
 export default class Artist extends ArtistSchema {
   static table = 'artists'
@@ -13,7 +12,4 @@ export default class Artist extends ArtistSchema {
     pivotColumns: ['followed_at'],
   })
   declare users: ManyToMany<typeof User>
-
-  @hasMany(() => Release)
-  declare releases: HasMany<typeof Release>
 }

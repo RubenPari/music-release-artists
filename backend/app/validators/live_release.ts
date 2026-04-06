@@ -1,7 +1,7 @@
 import vine from '@vinejs/vine'
 import { RELEASE_TYPES, SORT_OPTIONS } from '#utils/constants'
 
-export const releaseIndexValidator = vine.create({
+export const releaseLiveIndexValidator = vine.create({
   page: vine.number().positive().optional(),
   limit: vine.number().range([1, 50]).optional(),
   type: vine.enum(RELEASE_TYPES).optional(),
@@ -18,6 +18,3 @@ export const releaseIndexValidator = vine.create({
     .optional(),
 })
 
-export const releaseLatestValidator = vine.create({
-  days: vine.number().range([1, 365]).optional(),
-})

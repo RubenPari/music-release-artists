@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
 import { BaseCommand } from '@adonisjs/core/ace'
 import User from '#models/user'
-import Release from '#models/release'
 import NotificationLog from '#models/notification_log'
 import Mail from '@adonisjs/mail/services/main'
 import encryption from '@adonisjs/core/services/encryption'
 import env from '#start/env'
+import SpotifyService from '#services/spotify_service'
+import { liveReleaseService } from '#services/live_release_service'
+import type { ReleaseType } from '#types/api'
 
 interface ReleaseWithArtist {
   id: number
@@ -131,30 +133,19 @@ export default class SendReleaseDigestCommand extends BaseCommand {
           .toFormat('yyyy-MM-dd')
       : DateTime.now().minus({ days: 7 }).toFormat('yyyy-MM-dd')
 
-    const userArtistIds = await user
-      .related('artists')
-      .query()
-      .select('artists.id')
-      .pojo<{ id: number }>()
-
-    const artistIds = userArtistIds.map((a) => a.id)
-    if (artistIds.length === 0) {
-      return []
-    }
-
     const notificationTypes = user.notificationTypes
       ? (JSON.parse(user.notificationTypes) as string[])
       : ['album', 'single', 'ep', 'compilation']
 
-    const releases = await Release.query()
-      .whereIn('artist_id', artistIds)
-      .where('release_date', '>=', sinceDate)
-      .whereIn('type', notificationTypes)
-      .preload('artist')
-      .orderBy('release_date', 'desc')
+    const liveReleases = await liveReleaseService.getLiveReleasesSince(
+      user,
+      SpotifyService,
+      sinceDate,
+      notificationTypes as ReleaseType[]
+    )
 
-    return releases.map((r) => ({
-      id: r.id,
+    return liveReleases.map((r) => ({
+      id: 0,
       title: r.title,
       type: r.type,
       coverUrl: r.coverUrl,

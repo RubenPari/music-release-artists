@@ -76,9 +76,7 @@ router
 
     router
       .group(() => {
-        router.get('/', [controllers.Releases, 'index'])
-        router.get('/latest', [controllers.Releases, 'latest'])
-        router.post('/sync', [controllers.Releases, 'sync']).use(spotifySyncLimiter)
+        router.get('/live', [controllers.Releases, 'live'])
       })
       .prefix('releases')
       .as('releases')

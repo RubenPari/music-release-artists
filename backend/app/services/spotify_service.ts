@@ -55,6 +55,9 @@ interface SpotifyAlbumsResponse {
 }
 
 export default class SpotifyService {
+  static API_BASE = SPOTIFY_ENDPOINTS.API_BASE
+  static ACCOUNTS_BASE = 'https://accounts.spotify.com'
+
   static getAuthorizationUrl(state: string): string {
     const params = new URLSearchParams({
       client_id: env.get('SPOTIFY_CLIENT_ID'),

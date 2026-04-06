@@ -43,14 +43,13 @@ export interface ApiMessageResponse {
 export type ReleaseType = 'album' | 'single' | 'ep' | 'compilation'
 
 export interface ReleaseDTO {
-  id: number
+  id: string
   spotifyReleaseId: string
   title: string
   type: ReleaseType
   coverUrl: string | null
   releaseDate: string
   spotifyUrl: string
-  firstSeenAt: string
   artist: ArtistDTO
 }
 
@@ -63,13 +62,7 @@ export interface ReleaseIndexDTO {
   q?: string
 }
 
-export interface ReleaseLatestDTO {
-  days?: number
-}
-
-export interface ReleaseSyncResponse {
-  message: string
-}
+export interface ReleaseLiveIndexDTO extends ReleaseIndexDTO {}
 
 // ============================================
 // Artist Types
