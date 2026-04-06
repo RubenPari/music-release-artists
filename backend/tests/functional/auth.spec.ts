@@ -1,8 +1,13 @@
 import { test } from '@japa/runner'
 
-test.group('Auth API', (group) => {
+test.group('Auth API', () => {
   test('should reject signup without required fields', async ({ client }) => {
-    const response = await client.post('/api/v1/auth/signup').form({})
+    const response = await client.post('/api/v1/auth/signup').form({
+      fullName: null,
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+    })
     response.assertStatus(422)
   })
 
@@ -17,7 +22,10 @@ test.group('Auth API', (group) => {
   })
 
   test('should reject login without credentials', async ({ client }) => {
-    const response = await client.post('/api/v1/auth/login').form({})
+    const response = await client.post('/api/v1/auth/login').form({
+      email: '',
+      password: '',
+    })
     response.assertStatus(422)
   })
 
