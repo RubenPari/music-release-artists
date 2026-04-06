@@ -19,7 +19,7 @@ export const SORT_OPTIONS = {
   RELEASE_DATE_ASC: 'release_date_asc',
 } as const
 
-const FRONTEND_BASE = process.env.FRONTEND_URL || 'http://localhost:5173'
+const FRONTEND_BASE = process.env.FRONTEND_URL || 'http://127.0.0.1:5173'
 
 export const REDIRECTS = {
   SPOTIFY_ERROR: (error: string) => `${FRONTEND_BASE}/settings?spotify_error=${error}`,

@@ -15,7 +15,7 @@ export default class SpotifyAuthController {
   }
 
   async callback({ request, response }: HttpContext) {
-    const frontendBase = Env.get('APP_URL', 'http://localhost:5173')
+    const frontendBase = Env.get('APP_URL', 'http://127.0.0.1:5173')
 
     const error = request.input('error')
     if (error) {

@@ -115,7 +115,7 @@ cd backend && npm i @adonisjs/ally
 ```
 SPOTIFY_CLIENT_ID=
 SPOTIFY_CLIENT_SECRET=
-SPOTIFY_REDIRECT_URI=http://localhost:3333/api/v1/spotify/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:3333/api/v1/spotify/callback
 ```
 
 ## Route

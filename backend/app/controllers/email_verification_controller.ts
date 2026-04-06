@@ -12,10 +12,10 @@ export default class EmailVerificationController {
       const user = await User.verifyEmail(token)
       const { token: accessToken } = await user.markAsVerified()
 
-      const appUrl = Env.get('APP_URL', 'http://localhost:5173')
+      const appUrl = Env.get('APP_URL', 'http://127.0.0.1:5173')
       return response.redirect(`${appUrl}/callback?verified=true&token=${accessToken}`)
     } catch (error) {
-      const appUrl = Env.get('APP_URL', 'http://localhost:5173')
+      const appUrl = Env.get('APP_URL', 'http://127.0.0.1:5173')
       const message = error instanceof Error ? error.message : 'Verification failed'
       return response.redirect(`${appUrl}/callback?verify_error=${encodeURIComponent(message)}`)
     }

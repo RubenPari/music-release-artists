@@ -22,7 +22,7 @@ export class MailService {
     this.apiKey = Env.get('MAILTRAP_API_KEY', '')
     this.fromEmail = Env.get('MAILTRAP_FROM_EMAIL', 'noreply@example.com')
     this.fromName = Env.get('MAILTRAP_FROM_NAME', 'Music Release Artists')
-    this.appUrl = Env.get('APP_URL', 'http://localhost:5173')
+    this.appUrl = Env.get('APP_URL', 'http://127.0.0.1:5173')
   }
 
   async sendEmail(email: MailtrapEmail): Promise<void> {

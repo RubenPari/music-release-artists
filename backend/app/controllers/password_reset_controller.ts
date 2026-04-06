@@ -33,7 +33,7 @@ export default class PasswordResetController {
   async redirect({ params, response }: HttpContext) {
     const { token } = params
 
-    const appUrl = Env.get('APP_URL', 'http://localhost:5173')
+    const appUrl = Env.get('APP_URL', 'http://127.0.0.1:5173')
 
     try {
       await User.verifyPasswordResetToken(token)

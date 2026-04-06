@@ -164,7 +164,7 @@ export default class SendReleaseDigestCommand extends BaseCommand {
     unsubscribeToken: string
   ): Promise<void> {
     const displayName = user.fullName || user.displayName || user.email.split('@')[0]
-    const appUrl = env.get('APP_URL', 'http://localhost:5173')
+    const appUrl = env.get('APP_URL', 'http://127.0.0.1:5173')
 
     const unsubscribeUrl = `${appUrl}/api/v1/notifications/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`
     const dashboardUrl = appUrl

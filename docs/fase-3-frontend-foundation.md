@@ -15,7 +15,7 @@ Costruire la struttura frontend con routing, autenticazione email/password, coll
 - `tailwindcss` + `@tailwindcss/vite` — Tailwind CSS v4 (plugin Vite, no config file)
 
 ### 2. Configurazione Vite
-- Aggiungere proxy: `/api` → `http://localhost:3333` (evita problemi CORS in dev)
+- Aggiungere proxy: `/api` → `http://127.0.0.1:3333` (evita problemi CORS in dev)
 - Aggiungere plugin Tailwind CSS
 
 ### 3. API Client (`src/lib/api.ts`)
@@ -89,7 +89,7 @@ cd frontend && npm i react-router-dom @tanstack/react-query @tuyau/client tailwi
 ```
 
 ## Verifica
-1. `npm run dev` avvia il frontend su `localhost:5173`
+1. `npm run dev` avvia il frontend su `127.0.0.1:5173`
 2. Visitare `/dashboard` senza login → redirect a `/login`
 3. Registrarsi su `/signup` → redirect a `/dashboard`
 4. Login su `/login` con credenziali → redirect a `/dashboard`
