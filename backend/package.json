@@ -67,7 +67,6 @@
     "@adonisjs/session": "^8.0.0",
     "@adonisjs/shield": "^9.0.0",
     "@japa/api-client": "^3.2.1",
-    "@tuyau/core": "^1.0.0",
     "@vinejs/vine": "^4.3.0",
     "better-sqlite3": "^12.8.0",
     "luxon": "^3.7.2",

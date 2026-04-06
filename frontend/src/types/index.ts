@@ -2,7 +2,7 @@
  * Shared TypeScript Types
  * 
  * @description These types mirror the backend types in `backend/app/types/api.ts`
- * for end-to-end type safety. When using Tuyau, these can be auto-generated.
+ * for end-to-end type safety.
  */
 
 // ============================================
