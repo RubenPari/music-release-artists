@@ -22,6 +22,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
     ports:
       - "3333:3333"
     volumes:
@@ -31,17 +33,25 @@ services:
       - NODE_ENV=development
       - PORT=3333
       - HOST=0.0.0.0
+      - APP_URL=${APP_URL:-http://127.0.0.1:5173}
+      - DB_CONNECTION=pg
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=app
       - DB_PASSWORD=app
       - DB_DATABASE=music_release_artists
-      - SMTP_HOST=${SMTP_HOST:-smtp.mailtrap.io}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USERNAME=${SMTP_USERNAME:-}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
     working_dir: /app/backend
     command: sh -c "npm ci && node ace migration:run --force && node ace serve --hmr"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3333/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 600s
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,10 +66,13 @@ services:
         - VITE_API_URL=http://backend:3333
     ports:
       - "5173:5173"
+    environment:
+      - BACKEND_UPSTREAM=backend:3333
     networks:
       - app-network
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 networks:
   app-network:
