@@ -65,7 +65,23 @@ async function request<T>(
     headers,
   })
 
-  const data = await response.json() as { message?: string; errors?: unknown; [key: string]: unknown }
+  const contentType = response.headers.get('content-type') ?? ''
+  const isJson = contentType.includes('application/json')
+
+  if (!response.ok && !isJson) {
+    throw new Error(
+      response.status >= 502
+        ? 'Servizio temporaneamente non disponibile. Riprova tra poco.'
+        : 'Errore dal server. Riprova.'
+    )
+  }
+
+  let data: { message?: string; errors?: unknown; [key: string]: unknown }
+  try {
+    data = (await response.json()) as { message?: string; errors?: unknown; [key: string]: unknown }
+  } catch {
+    throw new Error('Servizio temporaneamente non disponibile. Riprova tra poco.')
+  }
 
   if (!response.ok) {
     const error = new Error(data.message || 'An error occurred') as Error & Record<string, unknown>
