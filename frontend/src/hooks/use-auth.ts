@@ -55,7 +55,7 @@ async function logout() {
 export function useAuth() {
   const queryClient = useQueryClient()
 
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isPending, error } = useQuery({
     queryKey: authKeys.user,
     queryFn: fetchUser,
     retry: false,
@@ -85,7 +85,7 @@ export function useAuth() {
 
   return {
     user,
-    isLoading,
+    isLoading: isPending,
     isAuthenticated: !!user,
     isSpotifyConnected: user?.isSpotifyConnected ?? false,
     error,
