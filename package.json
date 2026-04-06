@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "devDependencies": {
+    "husky": "^9.1.0",
+    "lint-staged": "^16.1.0"
+  },
+  "lint-staged": {
+    "backend/**/*.ts": [
+      "eslint --fix --no-warn-ignored"
+    ],
+    "frontend/**/*.{ts,tsx}": [
+      "eslint --fix --no-warn-ignored"
+    ]
+  },
+  "scripts": {
+    "prepare": "husky"
+  }
+}
