@@ -27,7 +27,7 @@ export const releaseKeys = {
 async function fetchReleases(
   params: ReleasesFilters & { page?: number; limit?: number }
 ): Promise<PaginatedResponse<Release>> {
-  return api.releases.index(params)
+  return api.releases.live(params)
 }
 
 /**
@@ -59,8 +59,6 @@ export function useSyncReleases() {
 
   return useMutation({
     mutationFn: async () => {
-      // Sync both artists and releases
-      await api.releases.sync()
       await api.artists.sync()
     },
     onSuccess: () => {

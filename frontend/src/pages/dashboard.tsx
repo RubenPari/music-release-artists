@@ -120,9 +120,9 @@ function EmptyReleasesView({ onSync, isSyncing }: { onSync: () => void; isSyncin
         <MusicIcon className="mb-4 h-16 w-16 text-[#6b6375]/30" />
         <h3 className="mb-2 text-lg font-semibold text-[#08060d]">Nessuna release</h3>
         <p className="mb-4 max-w-md text-sm text-[#6b6375]">
-          Sembra che non ci siano release sincronizzate. Clicca su "Aggiorna" per importare le uscite dei tuoi artisti da Spotify.
+          Sembra che non ci siano release disponibili. Clicca su "Aggiorna" per ricaricare le uscite da Spotify.
         </p>
-        <Button onClick={onSync} isLoading={isSyncing}>Sincronizza le tue uscite</Button>
+        <Button onClick={onSync} isLoading={isSyncing}>Aggiorna da Spotify</Button>
       </CardContent>
     </Card>
   )
