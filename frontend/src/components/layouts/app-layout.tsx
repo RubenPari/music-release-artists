@@ -17,10 +17,10 @@ export function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f4f3ec]">
-      <nav className="border-b border-[#e5e4e7] bg-white">
+    <div className="min-h-screen bg-surface">
+      <nav className="border-b border-border bg-white">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-          <Link to="/dashboard" className="text-xl font-semibold text-[#08060d]">
+          <Link to="/dashboard" className="text-xl font-semibold text-foreground">
             Music Release Artists
           </Link>
 
@@ -28,13 +28,13 @@ export function AppLayout() {
             {user && (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#aa3bff] text-sm font-medium text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-medium text-white">
                     {user.initials}
                   </div>
-                  <span className="text-sm text-[#6b6375]">{user.fullName || user.email}</span>
+                  <span className="text-sm text-muted">{user.fullName || user.email}</span>
                 </div>
 
-                <div className="h-4 w-px bg-[#e5e4e7]" />
+                <div className="h-4 w-px bg-border" />
 
                 <div className="flex items-center gap-2">
                   {isSpotifyConnected ? (
@@ -43,8 +43,8 @@ export function AppLayout() {
                       Spotify collegato
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-sm text-[#6b6375]">
-                      <span className="h-2 w-2 rounded-full bg-[#e5e4e7]" />
+                    <span className="flex items-center gap-1 text-sm text-muted">
+                      <span className="h-2 w-2 rounded-full bg-border" />
                       Spotify non collegato
                     </span>
                   )}
@@ -56,13 +56,13 @@ export function AppLayout() {
                   </Button>
                 )}
 
-                <div className="h-4 w-px bg-[#e5e4e7]" />
+                <div className="h-4 w-px bg-border" />
 
-                <Link to="/settings" className="text-sm text-[#6b6375] hover:text-[#08060d] transition-colors">
+                <Link to="/settings" className="text-sm text-muted hover:text-foreground transition-colors">
                   Impostazioni
                 </Link>
 
-                <div className="h-4 w-px bg-[#e5e4e7]" />
+                <div className="h-4 w-px bg-border" />
 
                 <Button variant="ghost" size="sm" onClick={handleLogout} isLoading={isLoggingOut}>
                   Logout

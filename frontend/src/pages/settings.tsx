@@ -26,9 +26,9 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-semibold text-[#08060d]">Impostazioni</h1>
+      <h1 className="text-3xl font-semibold text-foreground">Impostazioni</h1>
 
-      <div className="flex gap-1 border-b border-[#e5e4e7]">
+      <div className="flex gap-1 border-b border-border">
         {TABS.map((tab) => (
           <button
             key={tab.value}
@@ -36,14 +36,14 @@ export function SettingsPage() {
             className={`
               px-4 py-2.5 text-sm font-medium transition-colors relative
               ${activeTab === tab.value
-                ? 'text-[#aa3bff]'
-                : 'text-[#6b6375] hover:text-[#08060d]'
+                ? 'text-brand'
+                : 'text-muted hover:text-foreground'
               }
             `}
           >
             {tab.label}
             {activeTab === tab.value && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#aa3bff]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand" />
             )}
           </button>
         ))}
@@ -80,11 +80,11 @@ function ProfileSection({ user, isLoading }: { user: ReturnType<typeof useAuth>[
       <CardContent className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           {isLoading ? (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f4f3ec]">
-              <div className="h-6 w-6 animate-pulse rounded-full bg-[#e5e4e7]" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface">
+              <div className="h-6 w-6 animate-pulse rounded-full bg-border" />
             </div>
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#aa3bff] text-white font-semibold">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white font-semibold">
               {user?.initials || '??'}
             </div>
           )}
@@ -92,15 +92,15 @@ function ProfileSection({ user, isLoading }: { user: ReturnType<typeof useAuth>[
           <div>
             {isLoading ? (
               <div className="space-y-2">
-                <div className="h-5 w-32 animate-pulse rounded bg-[#f4f3ec]" />
-                <div className="h-4 w-48 animate-pulse rounded bg-[#f4f3ec]" />
+                <div className="h-5 w-32 animate-pulse rounded bg-surface" />
+                <div className="h-4 w-48 animate-pulse rounded bg-surface" />
               </div>
             ) : (
               <>
-                <p className="font-medium text-[#08060d]">
+                <p className="font-medium text-foreground">
                   {user?.fullName || user?.email}
                 </p>
-                <p className="text-sm text-[#6b6375]">{user?.email}</p>
+                <p className="text-sm text-muted">{user?.email}</p>
               </>
             )}
           </div>
@@ -121,7 +121,7 @@ function ProfileSection({ user, isLoading }: { user: ReturnType<typeof useAuth>[
             </>
           ) : (
             <>
-              <span className="text-sm text-[#6b6375]">Spotify non collegato</span>
+              <span className="text-sm text-muted">Spotify non collegato</span>
               <Button size="sm" onClick={() => void handleSpotifyConnect()}>
                 Collega Spotify
               </Button>

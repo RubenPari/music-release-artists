@@ -31,7 +31,7 @@ export function VerifyEmailPage() {
       <>
         <CardTitle className="mb-6">Email inviata</CardTitle>
         <div className="space-y-4 text-center">
-          <p className="text-[#6b6375]">
+          <p className="text-muted">
             Se esiste un account con questa email, ti abbiamo inviato una nuova email di verifica.
           </p>
           <Button variant="outline" className="w-full" onClick={() => void navigate('/login')}>
@@ -62,8 +62,8 @@ export function VerifyEmailPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#6b6375]">
-        <Link to="/login" className="text-[#aa3bff] hover:underline">
+      <p className="mt-4 text-center text-sm text-muted">
+        <Link to="/login" className="text-brand hover:underline">
           Torna al login
         </Link>
       </p>

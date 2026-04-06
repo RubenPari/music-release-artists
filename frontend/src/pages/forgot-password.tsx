@@ -31,7 +31,7 @@ export function ForgotPasswordPage() {
       <>
         <CardTitle className="mb-6">Controlla la tua email</CardTitle>
         <div className="space-y-4 text-center">
-          <p className="text-[#6b6375]">
+          <p className="text-muted">
             Se esiste un account con questa email, ti abbiamo inviato un link per reimpostare la password.
           </p>
           <Button variant="outline" className="w-full" onClick={() => void navigate('/login')}>
@@ -62,9 +62,9 @@ export function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#6b6375]">
+      <p className="mt-4 text-center text-sm text-muted">
         Ti sei ricordato la password?{' '}
-        <Link to="/login" className="text-[#aa3bff] hover:underline">
+        <Link to="/login" className="text-brand hover:underline">
           Accedi
         </Link>
       </p>

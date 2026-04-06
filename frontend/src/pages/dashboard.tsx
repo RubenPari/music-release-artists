@@ -58,7 +58,7 @@ export function DashboardPage() {
 function DashboardHeader({ onSync, isSyncing }: { onSync: () => void; isSyncing: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-semibold text-[#08060d]">Le tue uscite</h1>
+      <h1 className="text-3xl font-semibold text-foreground">Le tue uscite</h1>
       <Button onClick={onSync} isLoading={isSyncing} disabled={isSyncing}>
         <SyncIcon className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
         Aggiorna
@@ -91,14 +91,14 @@ function DashboardAlerts({ spotifyStatus, error, syncSuccess }: { spotifyStatus:
 function SpotifyNotConnectedView({ spotifyStatus, error }: { spotifyStatus: string | null; error: string | null }) {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-semibold text-[#08060d]">Dashboard</h1>
+      <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
       {spotifyStatus === 'connected' && <StatusAlert variant="success" message="Spotify collegato con successo!" />}
       {error && <StatusAlert variant="error" message={`Errore: ${decodeURIComponent(error)}`} />}
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-          <SpotifyIcon className="mb-4 h-16 w-16 text-[#6b6375]/30" />
-          <h3 className="mb-2 text-lg font-semibold text-[#08060d]">Collega il tuo account Spotify</h3>
-          <p className="mb-4 max-w-md text-sm text-[#6b6375]">
+          <SpotifyIcon className="mb-4 h-16 w-16 text-muted/30" />
+          <h3 className="mb-2 text-lg font-semibold text-foreground">Collega il tuo account Spotify</h3>
+          <p className="mb-4 max-w-md text-sm text-muted">
             Per vedere le tue release musicali, devi prima collegare il tuo account Spotify per sincronizzare gli artisti che segui.
           </p>
           <Button onClick={() => {
@@ -117,9 +117,9 @@ function EmptyReleasesView({ onSync, isSyncing }: { onSync: () => void; isSyncin
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-        <MusicIcon className="mb-4 h-16 w-16 text-[#6b6375]/30" />
-        <h3 className="mb-2 text-lg font-semibold text-[#08060d]">Nessuna release</h3>
-        <p className="mb-4 max-w-md text-sm text-[#6b6375]">
+        <MusicIcon className="mb-4 h-16 w-16 text-muted/30" />
+        <h3 className="mb-2 text-lg font-semibold text-foreground">Nessuna release</h3>
+        <p className="mb-4 max-w-md text-sm text-muted">
           Sembra che non ci siano release disponibili. Clicca su "Aggiorna" per ricaricare le uscite da Spotify.
         </p>
         <Button onClick={onSync} isLoading={isSyncing}>Aggiorna da Spotify</Button>

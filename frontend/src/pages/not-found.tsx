@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button'
 
 export function NotFoundPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f4f3ec] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-surface px-4">
       <Card className="max-w-md text-center">
         <CardContent className="flex flex-col items-center py-12">
-          <div className="mb-6 text-8xl font-bold text-[#aa3bff]">404</div>
+          <div className="mb-6 text-8xl font-bold text-brand">404</div>
           
-          <h1 className="mb-2 text-2xl font-semibold text-[#08060d]">
+          <h1 className="mb-2 text-2xl font-semibold text-foreground">
             Pagina non trovata
           </h1>
           
-          <p className="mb-8 text-[#6b6375]">
+          <p className="mb-8 text-muted">
             La pagina che stai cercando non esiste o è stata spostata.
           </p>
           

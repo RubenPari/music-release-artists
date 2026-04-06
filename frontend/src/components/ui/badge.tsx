@@ -7,8 +7,8 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  default: 'bg-[#f4f3ec] text-[#6b6375]',
-  album: 'bg-[#aa3bff]/10 text-[#aa3bff]',
+  default: 'bg-surface text-muted',
+  album: 'bg-brand/10 text-brand',
   single: 'bg-[#22c55e]/10 text-[#22c55e]',
   ep: 'bg-[#3b82f6]/10 text-[#3b82f6]',
   compilation: 'bg-[#f59e0b]/10 text-[#f59e0b]',

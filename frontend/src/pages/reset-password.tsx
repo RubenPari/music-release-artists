@@ -18,8 +18,7 @@ export function ResetPasswordPage() {
   const mutation = useMutation({
     mutationFn: (payload: { token: string; password: string; passwordConfirmation: string }) =>
       api.auth.resetPassword(payload),
-    onSuccess: async () => {
-      await Promise.resolve()
+    onSuccess: () => {
       void navigate('/login?reset=success')
     },
   })
@@ -37,7 +36,7 @@ export function ResetPasswordPage() {
     return (
       <>
         <CardTitle className="mb-6">Link non valido</CardTitle>
-        <p className="text-sm text-[#6b6375]">
+        <p className="text-sm text-muted">
           Il token di reset non è presente. Richiedi un nuovo link.
         </p>
         <Button variant="outline" className="mt-4 w-full" onClick={() => void navigate('/forgot-password')}>
@@ -77,8 +76,8 @@ export function ResetPasswordPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#6b6375]">
-        <Link to="/login" className="text-[#aa3bff] hover:underline">
+      <p className="mt-4 text-center text-sm text-muted">
+        <Link to="/login" className="text-brand hover:underline">
           Torna al login
         </Link>
       </p>

@@ -58,9 +58,9 @@ export function SignupPage() {
         error={errorMessage}
         isPending={signupMutation.isPending}
       />
-      <p className="mt-4 text-center text-sm text-[#6b6375]">
+      <p className="mt-4 text-center text-sm text-muted">
         Hai gia un account?{' '}
-        <Link to="/login" className="text-[#aa3bff] hover:underline">Accedi</Link>
+        <Link to="/login" className="text-brand hover:underline">Accedi</Link>
       </p>
     </>
   )
@@ -122,10 +122,10 @@ function SignupSuccessView({ email, onLoginClick }: { email: string; onLoginClic
         <CardTitle>Account creato!</CardTitle>
       </div>
       <div className="space-y-4 text-center">
-        <p className="text-[#6b6375]">
-          Abbiamo inviato un'email di verifica a <strong className="text-[#08060d]">{email}</strong>
+        <p className="text-muted">
+          Abbiamo inviato un'email di verifica a <strong className="text-foreground">{email}</strong>
         </p>
-        <p className="text-sm text-[#6b6375]">Clicca sul link nell'email per attivare il tuo account.</p>
+        <p className="text-sm text-muted">Clicca sul link nell'email per attivare il tuo account.</p>
         <Button variant="outline" className="mt-4 w-full" onClick={onLoginClick}>Vai al login</Button>
       </div>
     </>

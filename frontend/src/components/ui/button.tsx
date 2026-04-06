@@ -7,10 +7,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles = {
-  primary: 'bg-[#aa3bff] text-white hover:bg-[#9331e6] disabled:bg-[#aa3bff]/50',
-  secondary: 'bg-[#f4f3ec] text-[#08060d] hover:bg-[#e8e7df] disabled:bg-[#f4f3ec]/50',
-  outline: 'border border-[#e5e4e7] text-[#6b6375] hover:bg-[#f4f3ec] disabled:opacity-50',
-  ghost: 'text-[#6b6375] hover:bg-[#f4f3ec] disabled:opacity-50',
+  primary: 'bg-brand text-white hover:bg-brand-hover disabled:bg-brand/50',
+  secondary: 'bg-surface text-foreground hover:bg-surface-hover disabled:bg-surface/50',
+  outline: 'border border-border text-muted hover:bg-surface disabled:opacity-50',
+  ghost: 'text-muted hover:bg-surface disabled:opacity-50',
 }
 
 const sizeStyles = {
@@ -32,7 +32,7 @@ export function Button({
     <button
       className={`
         inline-flex items-center justify-center rounded-lg font-medium transition-colors
-        focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:ring-offset-2
+        focus:outline-none focus:ring-2 focus:ring-brand/50 focus:ring-offset-2
         disabled:cursor-not-allowed
         ${variantStyles[variant]}
         ${sizeStyles[size]}

@@ -66,25 +66,25 @@ export function FilterBar({ searchQuery, onSearchChange }: FilterBarProps) {
         <Select options={artistOptions} value={searchParams.get('artist_id') || ''} onChange={(e) => updateFilter('artist_id', e.target.value)} disabled={!artistsData?.data.length} />
         <Select options={SORT_OPTIONS} value={searchParams.get('sort') || 'release_date_desc'} onChange={(e) => updateFilter('sort', e.target.value)} />
       </div>
-      <div className="flex items-center gap-3 border-t border-[#e5e4e7] pt-3">
-        <span className="text-xs font-medium text-[#6b6375] uppercase tracking-wide">Periodo</span>
+      <div className="flex items-center gap-3 border-t border-border pt-3">
+        <span className="text-xs font-medium text-muted uppercase tracking-wide">Periodo</span>
         <input
           type="date"
           value={searchParams.get('from_date') || ''}
           onChange={(e) => updateFilter('from_date', e.target.value)}
-          className="rounded-lg border border-[#e5e4e7] bg-white px-2.5 py-1.5 text-sm text-[#08060d] focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:border-[#aa3bff]"
+          className="rounded-lg border border-border bg-white px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
         />
-        <span className="text-xs text-[#6b6375]">&ndash;</span>
+        <span className="text-xs text-muted">&ndash;</span>
         <input
           type="date"
           value={searchParams.get('to_date') || ''}
           onChange={(e) => updateFilter('to_date', e.target.value)}
-          className="rounded-lg border border-[#e5e4e7] bg-white px-2.5 py-1.5 text-sm text-[#08060d] focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:border-[#aa3bff]"
+          className="rounded-lg border border-border bg-white px-2.5 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand"
         />
         {hasDateFilter && (
           <button
             onClick={clearDates}
-            className="text-xs text-[#6b6375] hover:text-[#08060d] transition-colors underline underline-offset-2"
+            className="text-xs text-muted hover:text-foreground transition-colors underline underline-offset-2"
           >
             Resetta
           </button>

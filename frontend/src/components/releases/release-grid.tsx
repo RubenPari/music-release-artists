@@ -39,7 +39,7 @@ export function ReleaseGrid({
     return (
       <div className="flex flex-col items-center justify-center rounded-xl bg-white py-16 text-center shadow-sm">
         <svg
-          className="mb-4 h-16 w-16 text-[#6b6375]/30"
+          className="mb-4 h-16 w-16 text-muted/30"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -51,8 +51,8 @@ export function ReleaseGrid({
             d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
           />
         </svg>
-        <h3 className="mb-2 text-lg font-semibold text-[#08060d]">Nessuna release trovata</h3>
-        <p className="text-sm text-[#6b6375]">Prova a modificare i filtri o sincronizza le tue uscite</p>
+        <h3 className="mb-2 text-lg font-semibold text-foreground">Nessuna release trovata</h3>
+        <p className="text-sm text-muted">Prova a modificare i filtri o sincronizza le tue uscite</p>
       </div>
     )
   }
@@ -73,7 +73,7 @@ export function ReleaseGrid({
 
       {hasNextPage && !isFetchingNextPage && (
         <div ref={ref} className="flex justify-center py-4">
-          <span className="text-sm text-[#6b6375]">Carica altre release...</span>
+          <span className="text-sm text-muted">Carica altre release...</span>
         </div>
       )}
     </div>

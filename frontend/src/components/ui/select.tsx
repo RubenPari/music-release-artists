@@ -24,16 +24,16 @@ export function Select({
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={selectId} className="block text-sm font-medium text-[#08060d]">
+        <label htmlFor={selectId} className="block text-sm font-medium text-foreground">
           {label}
         </label>
       )}
       <select
         id={selectId}
         className={`
-          w-full rounded-lg border border-[#e5e4e7] bg-white px-3 py-2 text-[#08060d]
-          focus:outline-none focus:ring-2 focus:ring-[#aa3bff]/50 focus:border-[#aa3bff]
-          disabled:cursor-not-allowed disabled:bg-[#f4f3ec] disabled:opacity-50
+          w-full rounded-lg border border-border bg-white px-3 py-2 text-foreground
+          focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand
+          disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-50
           ${className}
         `}
         {...props}

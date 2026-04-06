@@ -69,13 +69,13 @@ export function LoginPage() {
         />
 
         <div className="text-right text-sm">
-          <Link to="/forgot-password" className="text-[#aa3bff] hover:underline">
+          <Link to="/forgot-password" className="text-brand hover:underline">
             Password dimenticata?
           </Link>
         </div>
 
         {errorMessage && (
-          <div className={`rounded-lg p-3 text-sm ${needsVerification ? 'bg-[#aa3bff]/10 text-[#aa3bff]' : 'bg-red-50 text-red-500'}`}>
+          <div className={`rounded-lg p-3 text-sm ${needsVerification ? 'bg-brand/10 text-brand' : 'bg-red-50 text-red-500'}`}>
             {errorMessage}
             {needsVerification && (
               <Link to="/verify-email" className="ml-2 font-medium hover:underline">
@@ -90,9 +90,9 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-[#6b6375]">
+      <p className="mt-4 text-center text-sm text-muted">
         Non hai un account?{' '}
-        <Link to="/signup" className="text-[#aa3bff] hover:underline">
+        <Link to="/signup" className="text-brand hover:underline">
           Registrati
         </Link>
       </p>

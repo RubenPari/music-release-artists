@@ -64,8 +64,8 @@ export function NotificationForm() {
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            <div className="h-6 w-32 rounded bg-[#f4f3ec]" />
-            <div className="h-10 w-full rounded bg-[#f4f3ec]" />
+            <div className="h-6 w-32 rounded bg-surface" />
+            <div className="h-10 w-full rounded bg-surface" />
           </div>
         </CardContent>
       </Card>
@@ -80,8 +80,8 @@ export function NotificationForm() {
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-[#08060d]">Notifiche attive</p>
-            <p className="text-sm text-[#6b6375]">
+            <p className="font-medium text-foreground">Notifiche attive</p>
+            <p className="text-sm text-muted">
               Ricevi un'email quando escono nuove release dei tuoi artisti
             </p>
           </div>
@@ -92,7 +92,7 @@ export function NotificationForm() {
             onClick={() => setEnabled(!enabled)}
             className={`
               relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-              ${enabled ? 'bg-[#aa3bff]' : 'bg-[#e5e4e7]'}
+              ${enabled ? 'bg-brand' : 'bg-border'}
             `}
           >
             <span
@@ -115,20 +115,20 @@ export function NotificationForm() {
                 placeholder="esempio@email.com"
                 className="max-w-xs"
               />
-              <p className="text-xs text-[#6b6375]">
+              <p className="text-xs text-muted">
                 L'indirizzo email dove riceverai le notifiche sulle nuove uscite
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-[#08060d]">Frequenza</label>
+              <label className="block text-sm font-medium text-foreground">Frequenza</label>
               <Select
                 options={frequencyOptions}
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value as NotificationFrequency)}
                 className="w-full max-w-xs"
               />
-              <p className="text-xs text-[#6b6375]">
+              <p className="text-xs text-muted">
                 {frequency === 'daily' && 'Riceverai un email ogni giorno se ci sono nuove release'}
                 {frequency === 'weekly' && 'Riceverai un email ogni settimana se ci sono nuove release'}
                 {frequency === 'monthly' && 'Riceverai un email ogni mese se ci sono nuove release'}
@@ -136,7 +136,7 @@ export function NotificationForm() {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-[#08060d]">
+              <label className="block text-sm font-medium text-foreground">
                 Tipi di release da notificare
               </label>
               <div className="flex flex-wrap gap-3">
@@ -149,9 +149,9 @@ export function NotificationForm() {
                       type="checkbox"
                       checked={selectedTypes.includes(type.value)}
                       onChange={() => handleTypeToggle(type.value)}
-                      className="h-4 w-4 rounded border-[#e5e4e7] text-[#aa3bff] focus:ring-[#aa3bff]/50"
+                      className="h-4 w-4 rounded border-border text-brand focus:ring-brand/50"
                     />
-                    <span className="text-sm text-[#08060d]">{type.label}</span>
+                    <span className="text-sm text-foreground">{type.label}</span>
                   </label>
                 ))}
               </div>
