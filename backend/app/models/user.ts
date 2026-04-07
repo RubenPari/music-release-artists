@@ -94,7 +94,8 @@ export default class User extends compose(UserSchema, withAuthFinder(hash)) {
     await this.save()
 
     const token = await User.accessTokens.create(this)
-    return { token: token.value!.release() }
+    if (!token.value) throw new Error('Token generation failed')
+    return { token: token.value.release() }
   }
 
   static async verifyEmail(token: string): Promise<User> {

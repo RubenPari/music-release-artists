@@ -33,6 +33,15 @@ export const APP_URLS = {
   REDIRECTS,
 } as const
 
+export const RATE_LIMITS = {
+  AUTH: { requests: 10, period: '1 minute' as const },
+  FORGOT_PASSWORD: { requests: 3, period: '5 minutes' as const },
+  RESEND_VERIFICATION: { requests: 3, period: '5 minutes' as const },
+  SPOTIFY_SYNC: { requests: 5, period: '1 minute' as const },
+} as const
+
+export const SPOTIFY_PAGINATION_LIMIT = 50
+
 export const SPOTIFY_SCOPES = ['user-read-private', 'user-read-email', 'user-follow-read'].join(' ')
 
 export const SPOTIFY_ENDPOINTS = {
