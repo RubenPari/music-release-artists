@@ -3,6 +3,7 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import type { Query } from '@tanstack/react-query'
 import { type ReactNode, useState } from 'react'
 import { queryClient } from './query-config.js'
+import { CACHE_KEY } from '@/lib/constants'
 
 /**
  * Storage persister for offline support
@@ -11,7 +12,7 @@ import { queryClient } from './query-config.js'
  */
 const persister = createSyncStoragePersister({
   storage: window.localStorage,
-  key: 'music-release-query-cache',
+  key: CACHE_KEY,
 })
 
 /**

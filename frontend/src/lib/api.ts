@@ -22,8 +22,17 @@ import type {
   UpdateNotificationSettingsPayload,
   User,
 } from '@/types'
+import { API_BASE } from '@/lib/constants'
 
-const API_BASE = '/api/v1'
+export class ApiError extends Error {
+  data?: Record<string, unknown>
+
+  constructor(message: string, data?: Record<string, unknown>) {
+    super(message)
+    this.name = 'ApiError'
+    this.data = data
+  }
+}
 
 /**
  * Get authentication token from storage
@@ -69,7 +78,7 @@ async function request<T>(
   const isJson = contentType.includes('application/json')
 
   if (!response.ok && !isJson) {
-    throw new Error(
+    throw new ApiError(
       response.status >= 502
         ? 'Servizio temporaneamente non disponibile. Riprova tra poco.'
         : 'Errore dal server. Riprova.'
@@ -80,13 +89,11 @@ async function request<T>(
   try {
     data = (await response.json()) as { message?: string; errors?: unknown; [key: string]: unknown }
   } catch {
-    throw new Error('Servizio temporaneamente non disponibile. Riprova tra poco.')
+    throw new ApiError('Servizio temporaneamente non disponibile. Riprova tra poco.')
   }
 
   if (!response.ok) {
-    const error = new Error(data.message || 'An error occurred') as Error & Record<string, unknown>
-    Object.assign(error, data)
-    throw error
+    throw new ApiError(data.message || 'An error occurred', data)
   }
 
   return data as T

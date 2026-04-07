@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
+import { STALE_TIME, GC_TIME } from '@/lib/constants'
 
 /**
  * Query Client Configuration
@@ -8,8 +9,8 @@ import { QueryClient } from '@tanstack/react-query'
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours (was cacheTime)
+      staleTime: STALE_TIME,
+      gcTime: GC_TIME,
       retry: 1,
       refetchOnWindowFocus: false,
     },
