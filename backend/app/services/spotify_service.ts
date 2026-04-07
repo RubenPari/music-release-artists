@@ -2,7 +2,8 @@ import env from '#start/env'
 import encryption from '@adonisjs/core/services/encryption'
 import { DateTime } from 'luxon'
 import type User from '#models/user'
-import { SPOTIFY_ENDPOINTS, SPOTIFY_SCOPES } from '#utils/constants'
+import { SPOTIFY_ENDPOINTS, SPOTIFY_SCOPES, SPOTIFY_PAGINATION_LIMIT } from '#utils/constants'
+import { SpotifyAuthException } from '#exceptions/spotify_exception'
 
 interface SpotifyTokenResponse {
   access_token: string
@@ -95,7 +96,7 @@ export default class SpotifyService {
   }
 
   static async getFollowedArtists(accessToken: string, after?: string): Promise<SpotifyArtist[]> {
-    const params = new URLSearchParams({ type: 'artist', limit: '50' })
+    const params = new URLSearchParams({ type: 'artist', limit: String(SPOTIFY_PAGINATION_LIMIT) })
     if (after) params.set('after', after)
 
     const response = await this.fetchWithRetry(
@@ -123,7 +124,7 @@ export default class SpotifyService {
   ): Promise<SpotifyAlbum[]> {
     const params = new URLSearchParams({
       include_groups: 'album,single',
-      limit: '50',
+      limit: String(SPOTIFY_PAGINATION_LIMIT),
     })
     if (market) params.set('market', market)
 
@@ -159,18 +160,18 @@ export default class SpotifyService {
    */
   static async getValidAccessToken(user: User): Promise<string> {
     if (!user.accessTokenEnc || !user.refreshTokenEnc) {
-      throw new Error('User has no Spotify tokens')
+      throw SpotifyAuthException.noTokens()
     }
 
     const accessToken = encryption.decrypt<string>(user.accessTokenEnc)
-    if (!accessToken) throw new Error('Failed to decrypt access token')
+    if (!accessToken) throw SpotifyAuthException.decryptionFailed('access token')
 
     if (user.tokenExpiresAt && user.tokenExpiresAt > DateTime.now().plus({ minutes: 1 })) {
       return accessToken
     }
 
     const refreshToken = encryption.decrypt<string>(user.refreshTokenEnc)
-    if (!refreshToken) throw new Error('Failed to decrypt refresh token')
+    if (!refreshToken) throw SpotifyAuthException.decryptionFailed('refresh token')
 
     const result = await this.refreshAccessToken(refreshToken)
     user.accessTokenEnc = encryption.encrypt(result.access_token)
@@ -204,13 +205,13 @@ export default class SpotifyService {
 
       if (response.status === 401 || attempt === retries - 1) {
         const body = await response.text()
-        throw new Error(`Spotify API error ${response.status}: ${body}`)
+        throw SpotifyAuthException.apiError(response.status, body)
       }
 
       await this.sleep(Math.pow(2, attempt) * 1000)
     }
 
-    throw new Error('Spotify API: max retries exceeded')
+    throw SpotifyAuthException.maxRetriesExceeded()
   }
 
   private static sleep(ms: number): Promise<void> {

@@ -1,6 +1,10 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import app from '@adonisjs/core/services/app'
 import Env from '#start/env'
 import logger from '@adonisjs/core/services/logger'
 import type User from '#models/user'
+import { EmailSendException } from '#exceptions/email_exception'
 
 const MAILTRAP_API_URL = 'https://send.api.mailtrap.io/api/send'
 
@@ -42,55 +46,17 @@ export class MailService {
 
     if (!response.ok) {
       const error = await response.text()
-      throw new Error(`Failed to send email: ${response.status} ${error}`)
+      throw EmailSendException.sendFailed(response.status, error)
     }
   }
 
   async sendVerificationEmail(user: User, token: string): Promise<void> {
     const verificationUrl = `${this.appUrl}/api/v1/auth/verify-email/${token}`
+    const name = user.fullName || user.email
+    const vars = { name, url: verificationUrl }
 
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Conferma il tuo account</title>
-</head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h1 style="color: #aa3bff; margin: 0 0 24px; font-size: 24px;">Benvenuto in Music Release Artists!</h1>
-    
-    <p style="margin: 0 0 16px;">Ciao ${user.fullName || user.email},</p>
-    
-    <p style="margin: 0 0 24px;">Grazie per aver creato un account. Per attivare il tuo account, clicca sul pulsante qui sotto:</p>
-    
-    <div style="text-align: center; margin: 32px 0;">
-      <a href="${verificationUrl}" style="display: inline-block; background: #aa3bff; color: #fff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600;">Conferma il tuo account</a>
-    </div>
-    
-    <p style="margin: 0 0 16px; font-size: 14px; color: #666;">O copia e incolla questo link nel tuo browser:</p>
-    <p style="margin: 0 0 24px; font-size: 14px; color: #aa3bff; word-break: break-all;">${verificationUrl}</p>
-    
-    <hr style="border: none; border-top: 1px solid #e5e4e7; margin: 24px 0;">
-    
-    <p style="margin: 0; font-size: 14px; color: #999;">Questo link scade tra 24 ore.</p>
-  </div>
-</body>
-</html>
-`
-
-    const text = `
-Benvenuto in Music Release Artists!
-
-Ciao ${user.fullName || user.email},
-
-Grazie per aver creato un account. Per attivare il tuo account, clicca sul link qui sotto:
-
-${verificationUrl}
-
-Questo link scade tra 24 ore.
-`
+    const html = await this.loadTemplate('verification.html', vars)
+    const text = await this.loadTemplate('verification.txt', vars)
 
     await this.sendEmail({
       to: [{ email: user.email, name: user.fullName || undefined }],
@@ -103,51 +69,11 @@ Questo link scade tra 24 ore.
 
   async sendPasswordResetEmail(user: User, token: string): Promise<void> {
     const resetUrl = `${this.appUrl}/api/v1/auth/reset-password/${token}`
+    const name = user.fullName || user.email
+    const vars = { name, url: resetUrl }
 
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reimposta la tua password</title>
-</head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: #fff; border-radius: 8px; padding: 32px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h1 style="color: #aa3bff; margin: 0 0 24px; font-size: 24px;">Reimposta la tua password</h1>
-    
-    <p style="margin: 0 0 16px;">Ciao ${user.fullName || user.email},</p>
-    
-    <p style="margin: 0 0 24px;">Abbiamo ricevuto una richiesta di reimpostazione password. Clicca sul pulsante qui sotto per scegliere una nuova password:</p>
-    
-    <div style="text-align: center; margin: 32px 0;">
-      <a href="${resetUrl}" style="display: inline-block; background: #aa3bff; color: #fff; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600;">Reimposta password</a>
-    </div>
-    
-    <p style="margin: 0 0 16px; font-size: 14px; color: #666;">O copia e incolla questo link nel tuo browser:</p>
-    <p style="margin: 0 0 24px; font-size: 14px; color: #aa3bff; word-break: break-all;">${resetUrl}</p>
-    
-    <hr style="border: none; border-top: 1px solid #e5e4e7; margin: 24px 0;">
-    
-    <p style="margin: 0 0 8px; font-size: 14px; color: #999;">Se non hai richiesto questa operazione, puoi ignorare questa email.</p>
-    <p style="margin: 0; font-size: 14px; color: #999;">Questo link scade tra 2 ore.</p>
-  </div>
-</body>
-</html>
-`
-
-    const text = `
-Reimposta la tua password
-
-Ciao ${user.fullName || user.email},
-
-Abbiamo ricevuto una richiesta di reimpostazione password. Usa questo link per scegliere una nuova password:
-
-${resetUrl}
-
-Se non hai richiesto questa operazione, puoi ignorare questa email.
-Questo link scade tra 2 ore.
-`
+    const html = await this.loadTemplate('reset-password.html', vars)
+    const text = await this.loadTemplate('reset-password.txt', vars)
 
     await this.sendEmail({
       to: [{ email: user.email, name: user.fullName || undefined }],
@@ -156,6 +82,18 @@ Questo link scade tra 2 ore.
       html,
       text,
     })
+  }
+
+  private async loadTemplate(
+    filename: string,
+    vars: Record<string, string>
+  ): Promise<string> {
+    const templatePath = join(app.makePath('resources', 'emails'), filename)
+    let content = await readFile(templatePath, 'utf-8')
+    for (const [key, value] of Object.entries(vars)) {
+      content = content.replaceAll(`{{${key}}}`, value)
+    }
+    return content
   }
 }
 
