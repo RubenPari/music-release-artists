@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
-import type { ApiError } from '@/types'
+import { extractApiError } from '@/lib/type-guards'
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams()
@@ -29,7 +29,7 @@ export function ResetPasswordPage() {
   }
 
   const errorMessage = mutation.error
-    ? ((mutation.error as ApiError).message || 'Errore durante il reset')
+    ? (extractApiError(mutation.error, 'Errore durante il reset'))
     : null
 
   if (!token) {

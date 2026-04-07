@@ -6,23 +6,22 @@ import { FilterBar } from '@/components/releases/filter-bar'
 import { ReleaseGrid } from '@/components/releases/release-grid'
 import { useReleases, useSyncReleases } from '@/hooks/use-releases'
 import { useAuth } from '@/hooks/use-auth'
-import { api } from '@/lib/api'
+import { useToast } from '@/hooks/use-toast'
+import { useSpotifyConnection } from '@/hooks/use-spotify-connection'
 import { StatusAlert, SpotifyIcon, MusicIcon } from './dashboard/sub-components'
-import type { ReleaseType, ReleaseSortOption } from '@/types'
+import { toReleaseType, toReleaseSortOption } from '@/lib/type-guards'
 
 export function DashboardPage() {
   const [searchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState('')
   const { user } = useAuth()
+  const { addToast } = useToast()
   const syncReleases = useSyncReleases()
 
-  const spotifyStatus = searchParams.get('spotify')
-  const error = searchParams.get('error')
-
   const filters = {
-    type: (searchParams.get('type') as ReleaseType) || undefined,
+    type: toReleaseType(searchParams.get('type')),
     artistId: searchParams.get('artist_id') || undefined,
-    sort: (searchParams.get('sort') as ReleaseSortOption) || undefined,
+    sort: toReleaseSortOption(searchParams.get('sort')),
     q: searchQuery || undefined,
     fromDate: searchParams.get('from_date') || undefined,
     toDate: searchParams.get('to_date') || undefined,
@@ -31,8 +30,13 @@ export function DashboardPage() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useReleases(filters)
   const releases = data?.pages.flatMap((page) => page.data) || []
 
+  const spotifyStatus = searchParams.get('spotify')
+  const error = searchParams.get('error')
+
   const handleSync = () => {
-    void syncReleases.mutateAsync().catch(console.error)
+    void syncReleases.mutateAsync().catch(() => {
+      addToast('Sincronizzazione fallita. Riprova più tardi.', 'error')
+    })
   }
   const hasFiltersActive = Boolean(filters.type || filters.artistId || filters.q || filters.fromDate || filters.toDate)
 
@@ -89,6 +93,8 @@ function DashboardAlerts({ spotifyStatus, error, syncSuccess }: { spotifyStatus:
 
 /** View when Spotify is not connected */
 function SpotifyNotConnectedView({ spotifyStatus, error }: { spotifyStatus: string | null; error: string | null }) {
+  const { connect } = useSpotifyConnection()
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
@@ -101,11 +107,7 @@ function SpotifyNotConnectedView({ spotifyStatus, error }: { spotifyStatus: stri
           <p className="mb-4 max-w-md text-sm text-muted">
             Per vedere le tue release musicali, devi prima collegare il tuo account Spotify per sincronizzare gli artisti che segui.
           </p>
-          <Button onClick={() => {
-            void api.spotify.getRedirectUrl().then((data) => {
-              window.location.href = data.data.url
-            })
-          }}>Collega Spotify</Button>
+          <Button onClick={() => void connect()}>Collega Spotify</Button>
         </CardContent>
       </Card>
     </div>

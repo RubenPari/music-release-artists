@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { NotificationForm } from '@/components/settings/notification-form'
 import { useAuth } from '@/hooks/use-auth'
-import { api } from '@/lib/api'
+import { useSpotifyConnection } from '@/hooks/use-spotify-connection'
 
 type Tab = 'profile' | 'notifications'
 
@@ -15,7 +15,8 @@ const TABS: { value: Tab; label: string }[] = [
 
 export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialTab = (searchParams.get('tab') as Tab) || 'profile'
+  const tabParam = searchParams.get('tab')
+  const initialTab: Tab = tabParam === 'profile' || tabParam === 'notifications' ? tabParam : 'profile'
   const [activeTab, setActiveTab] = useState<Tab>(initialTab)
   const { user, isLoading: isLoadingUser } = useAuth()
 
@@ -61,19 +62,7 @@ export function SettingsPage() {
 }
 
 function ProfileSection({ user, isLoading }: { user: ReturnType<typeof useAuth>['user']; isLoading: boolean }) {
-  const handleSpotifyConnect = async () => {
-    const data = await api.spotify.getRedirectUrl()
-    window.location.href = data.data.url
-  }
-
-  const handleSpotifyDisconnect = async () => {
-    try {
-      await api.spotify.disconnect()
-      window.location.reload()
-    } catch (err) {
-      console.error('Failed to disconnect Spotify:', err)
-    }
-  }
+  const { connect: handleSpotifyConnect, disconnect: handleSpotifyDisconnect } = useSpotifyConnection()
 
   return (
     <Card>

@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
-import type { ApiError } from '@/types'
+import { extractApiError } from '@/lib/type-guards'
 
 export function VerifyEmailPage() {
   const [email, setEmail] = useState('')
@@ -23,7 +23,7 @@ export function VerifyEmailPage() {
   }
 
   const errorMessage = mutation.error
-    ? ((mutation.error as ApiError).message || 'Errore durante la richiesta')
+    ? (extractApiError(mutation.error, 'Errore durante la richiesta'))
     : null
 
   if (submitted) {

@@ -5,7 +5,7 @@ import { api } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CardTitle } from '@/components/ui/card'
-import type { ApiError } from '@/types'
+import { extractApiError } from '@/lib/type-guards'
 
 interface SignupFormData {
   fullName: string
@@ -45,7 +45,7 @@ export function SignupPage() {
   }
 
   const errorMessage = signupMutation.error
-    ? ((signupMutation.error as ApiError).message || 'Errore durante la registrazione')
+    ? extractApiError(signupMutation.error, 'Errore durante la registrazione')
     : null
 
   return (

@@ -15,13 +15,11 @@ export function LoginPage() {
   const [searchParams] = useSearchParams()
 
   const urlError = searchParams.get('error')
-  const from = (location.state as { from?: Location })?.from?.pathname || '/dashboard'
+  const state = location.state as Record<string, unknown> | null
+  const from = (state?.from as { pathname?: string } | undefined)?.pathname || '/dashboard'
 
   function isNeedsVerificationError(error: unknown): boolean {
-    if (error && typeof error === 'object' && 'needsVerification' in error) {
-      return (error as { needsVerification: boolean }).needsVerification
-    }
-    return false
+    return error !== null && typeof error === 'object' && 'needsVerification' in error && (error as Record<string, unknown>).needsVerification === true
   }
 
   const handleSubmit = (e: React.FormEvent) => {
