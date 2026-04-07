@@ -20,7 +20,7 @@ export default class AccessTokenController {
 
     return {
       user: UserTransformer.toObject(user),
-      token: token.value!.release(),
+      token: token.value?.release() ?? (() => { throw new Error('Token generation failed') })(),
     }
   }
 

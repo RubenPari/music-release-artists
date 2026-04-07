@@ -2,33 +2,12 @@ import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
 import { notificationSettingsValidator } from '#validators/notification_settings'
 import encryption from '@adonisjs/core/services/encryption'
-import { RELEASE_TYPES } from '#utils/constants'
-
-const DEFAULT_NOTIFICATION_TYPES = [...RELEASE_TYPES]
-
-function parseNotificationTypes(value: string | null): string[] {
-  if (!value) return DEFAULT_NOTIFICATION_TYPES
-  try {
-    const parsed = JSON.parse(value)
-    return Array.isArray(parsed) ? parsed : DEFAULT_NOTIFICATION_TYPES
-  } catch {
-    return DEFAULT_NOTIFICATION_TYPES
-  }
-}
-
-function serializeSettings(user: User) {
-  return {
-    notificationsEnabled: user.notificationsEnabled ?? false,
-    notificationFrequency: user.notificationFrequency ?? 'daily',
-    notificationTypes: parseNotificationTypes(user.notificationTypes),
-    notificationEmail: user.notificationEmail ?? user.email,
-  }
-}
+import { serializeNotificationSettings } from '#transformers/notification_settings_transformer'
 
 export default class NotificationSettingsController {
   async show({ auth }: HttpContext) {
     const user = auth.getUserOrFail()
-    return serializeSettings(user)
+    return serializeNotificationSettings(user)
   }
 
   async update({ auth, request }: HttpContext) {
@@ -53,7 +32,7 @@ export default class NotificationSettingsController {
 
     await user.save()
 
-    return serializeSettings(user)
+    return serializeNotificationSettings(user)
   }
 
   async unsubscribe({ request, response }: HttpContext) {

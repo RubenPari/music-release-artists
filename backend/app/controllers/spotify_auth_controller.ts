@@ -29,8 +29,8 @@ export default class SpotifyAuthController {
       return response.redirect(`${frontendBase}/settings?spotify_error=missing_params`)
     }
 
-    const userId = encryption.decrypt<number>(state)
-    if (!userId) {
+    const userId = encryption.decrypt<unknown>(state)
+    if (typeof userId !== 'number') {
       return response.redirect(`${frontendBase}/settings?spotify_error=invalid_state`)
     }
 
