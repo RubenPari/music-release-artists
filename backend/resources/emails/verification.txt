@@ -1,0 +1,9 @@
+Benvenuto in Music Release Artists!
+
+Ciao {{name}},
+
+Grazie per aver creato un account. Per attivare il tuo account, clicca sul link qui sotto:
+
+{{url}}
+
+Questo link scade tra 24 ore.
