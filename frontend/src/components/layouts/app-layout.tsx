@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
-import { api } from '@/lib/api'
+import { useSpotifyConnection } from '@/hooks/use-spotify-connection'
 import { Button } from '@/components/ui/button'
 
 export function AppLayout() {
@@ -11,10 +11,7 @@ export function AppLayout() {
     void logout().then(() => navigate('/login'))
   }
 
-  const handleConnectSpotify = async () => {
-    const data = await api.spotify.getRedirectUrl()
-    window.location.href = data.data.url
-  }
+  const { connect: handleConnectSpotify } = useSpotifyConnection()
 
   return (
     <div className="min-h-screen bg-surface">

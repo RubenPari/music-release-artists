@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useCallback, useContext, type ReactNode } from 'react'
+import { TOAST_DISMISS_MS } from '@/lib/constants'
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info'
 
@@ -26,7 +27,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 5000)
+    }, TOAST_DISMISS_MS)
   }, [])
 
   const removeToast = useCallback((id: string) => {

@@ -3,19 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useArtists } from '@/hooks/use-artists'
 import { Select } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
-
-const TYPE_OPTIONS = [
-  { value: '', label: 'Tutti i tipi' },
-  { value: 'album', label: 'Album' },
-  { value: 'single', label: 'Single' },
-  { value: 'ep', label: 'EP' },
-  { value: 'compilation', label: 'Compilation' },
-]
-
-const SORT_OPTIONS = [
-  { value: 'release_date_desc', label: 'Più recenti' },
-  { value: 'release_date_asc', label: 'Meno recenti' },
-]
+import { FILTER_TYPE_OPTIONS, SORT_OPTIONS, SEARCH_DEBOUNCE_MS } from '@/lib/constants'
 
 interface FilterBarProps {
   searchQuery: string
@@ -28,7 +16,7 @@ export function FilterBar({ searchQuery, onSearchChange }: FilterBarProps) {
   const [localSearch, setLocalSearch] = useState(searchQuery)
 
   useEffect(() => {
-    const timer = setTimeout(() => onSearchChange(localSearch), 300)
+    const timer = setTimeout(() => onSearchChange(localSearch), SEARCH_DEBOUNCE_MS)
     return () => clearTimeout(timer)
   }, [localSearch, onSearchChange])
 
@@ -62,7 +50,7 @@ export function FilterBar({ searchQuery, onSearchChange }: FilterBarProps) {
     <div className="space-y-3 rounded-xl bg-white p-4 shadow-sm">
       <div className="flex items-center gap-3">
         <SearchInput value={localSearch} onChange={setLocalSearch} />
-        <Select options={TYPE_OPTIONS} value={searchParams.get('type') || ''} onChange={(e) => updateFilter('type', e.target.value)} />
+        <Select options={FILTER_TYPE_OPTIONS} value={searchParams.get('type') || ''} onChange={(e) => updateFilter('type', e.target.value)} />
         <Select options={artistOptions} value={searchParams.get('artist_id') || ''} onChange={(e) => updateFilter('artist_id', e.target.value)} disabled={!artistsData?.data.length} />
         <Select options={SORT_OPTIONS} value={searchParams.get('sort') || 'release_date_desc'} onChange={(e) => updateFilter('sort', e.target.value)} />
       </div>

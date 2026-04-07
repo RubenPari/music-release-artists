@@ -1,39 +1,33 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useNotificationSettings } from '@/hooks/use-notification-settings'
+import { useToast } from '@/hooks/use-toast'
+import { RELEASE_TYPE_OPTIONS, FREQUENCY_OPTIONS } from '@/lib/constants'
 import type { NotificationFrequency, ReleaseType } from '@/types'
-
-const RELEASE_TYPES: { value: ReleaseType; label: string }[] = [
-  { value: 'album', label: 'Album' },
-  { value: 'single', label: 'Single' },
-  { value: 'ep', label: 'EP' },
-  { value: 'compilation', label: 'Compilation' },
-]
-
-const frequencyOptions: { value: NotificationFrequency; label: string }[] = [
-  { value: 'daily', label: 'Giornaliera' },
-  { value: 'weekly', label: 'Settimanale' },
-  { value: 'monthly', label: 'Mensile' },
-]
 
 export function NotificationForm() {
   const { settings, isLoading, updateSettings, isUpdating } = useNotificationSettings()
+  const { addToast } = useToast()
 
+  const [initialized, setInitialized] = useState(false)
   const [enabled, setEnabled] = useState(false)
   const [frequency, setFrequency] = useState<NotificationFrequency>('daily')
   const [selectedTypes, setSelectedTypes] = useState<ReleaseType[]>([])
   const [email, setEmail] = useState('')
   const [saved, setSaved] = useState(false)
 
-  if (settings && !enabled && !frequency && selectedTypes.length === 0 && !email) {
-    setEnabled(settings.notificationsEnabled)
-    setFrequency(settings.notificationFrequency)
-    setSelectedTypes(settings.notificationTypes)
-    setEmail(settings.notificationEmail)
-  }
+  useEffect(() => {
+    if (settings && !initialized) {
+      setEnabled(settings.notificationsEnabled)
+      setFrequency(settings.notificationFrequency)
+      setSelectedTypes(settings.notificationTypes)
+      setEmail(settings.notificationEmail)
+      setInitialized(true)
+    }
+  }, [settings, initialized])
 
   const handleTypeToggle = (type: ReleaseType) => {
     setSelectedTypes((prev) =>
@@ -51,8 +45,8 @@ export function NotificationForm() {
       })
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      console.error('Failed to save settings:', err)
+    } catch {
+      addToast('Salvataggio impostazioni fallito. Riprova più tardi.', 'error')
     }
   }
 
@@ -123,7 +117,7 @@ export function NotificationForm() {
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">Frequenza</label>
               <Select
-                options={frequencyOptions}
+                options={FREQUENCY_OPTIONS}
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value as NotificationFrequency)}
                 className="w-full max-w-xs"
@@ -140,7 +134,7 @@ export function NotificationForm() {
                 Tipi di release da notificare
               </label>
               <div className="flex flex-wrap gap-3">
-                {RELEASE_TYPES.map((type) => (
+                {RELEASE_TYPE_OPTIONS.map((type) => (
                   <label
                     key={type.value}
                     className="flex cursor-pointer items-center gap-2"
