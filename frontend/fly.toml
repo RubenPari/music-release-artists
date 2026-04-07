@@ -1,0 +1,23 @@
+app = "music-release-artists-web"
+primary_region = "ams"
+
+[build]
+  [build.args]
+    VITE_API_URL = "https://music-release-artists-web.fly.dev"
+
+[env]
+  BACKEND_UPSTREAM = "music-release-artists-api.fly.dev"
+
+[http_service]
+  internal_port = 5173
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[http_service.checks]]
+  grace_period = "5s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/"

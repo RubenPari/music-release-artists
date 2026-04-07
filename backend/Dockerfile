@@ -23,4 +23,4 @@ EXPOSE 3333
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://localhost:3333/health || exit 1
 
-CMD ["node", "bin/server.js"]
+CMD ["node", "build/bin/server.js"]
