@@ -1,14 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
 
 :root {
-  --bg: #e8eef2;
-  --ink: #142029;
-  --muted: #4a5a66;
-  --muted-2: #6b7c88;
-  --accent: #e35b2f;
-  --accent-2: #0f7a6c;
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'Manrope', sans-serif;
+  --paper: #f3efe4;
+  --paper-deep: #e9e2d3;
+  --surface: #fffdf7;
+  --ink: #181c20;
+  --muted: #62635f;
+  --muted-2: #8b8981;
+  --accent: #f15a38;
+  --accent-2: #3157c8;
+  --olive: #82906a;
+  --line: rgba(24, 28, 32, 0.14);
+  --shadow: 0 18px 45px rgba(45, 39, 28, 0.11);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', sans-serif;
   color-scheme: light;
 }
 
@@ -27,10 +32,11 @@ body {
 body {
   font-family: var(--font-body);
   color: var(--ink);
-  background:
-    radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, color-mix(in oklab, var(--accent-2) 14%, transparent), transparent 50%),
-    linear-gradient(180deg, #f3f6f8 0%, var(--bg) 40%, #dfe8ee 100%);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(rgba(24, 28, 32, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 28, 32, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -43,4 +49,30 @@ textarea {
 
 a {
   color: inherit;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--accent-2) 45%, transparent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 35%, var(--paper));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
