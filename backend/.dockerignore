@@ -1,0 +1,6 @@
+node_modules
+.encore
+encore.gen
+dist
+*.md
+.git
