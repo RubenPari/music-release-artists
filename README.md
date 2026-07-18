@@ -12,7 +12,7 @@ Stack: **TypeScript backend** (Hono + moduli `sync`/`notifications`/`db`, cron c
 
 - Docker Desktop / Docker Compose
 - App Spotify su [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
-  - Redirect URI: `http://localhost:4200/api/auth/spotify/callback`
+  - Redirect URI: `http://127.0.0.1:4200/api/auth/spotify/callback`
   - Scopes usati: `user-follow-read`, `user-read-email`
 
 ### Config
@@ -30,11 +30,11 @@ docker compose up --build
 
 | Servizio | URL |
 |----------|-----|
-| App | http://localhost:4200 |
-| API (via proxy) | http://localhost:4200/api |
-| API diretta | http://localhost:4000 |
-| Mailpit (email) | http://localhost:8025 |
-| Postgres | localhost:5432 |
+| App | http://127.0.0.1:4200 |
+| API (via proxy) | http://127.0.0.1:4200/api |
+| API diretta | http://127.0.0.1:4000 |
+| Mailpit (email) | http://127.0.0.1:8025 |
+| Postgres | 127.0.0.1:5432 |
 
 ## Funzionalità MVP
 

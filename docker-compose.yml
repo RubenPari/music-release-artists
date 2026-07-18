@@ -34,8 +34,8 @@ services:
       SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
       SESSION_SECRET: ${SESSION_SECRET:-dev-session-secret-change-me}
       TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-dev-token-encryption-key-change-me}
-      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:4200/api}
-      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
+      APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:4200/api}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://127.0.0.1:4200}
       SMTP_HOST: mailpit
       SMTP_PORT: "1025"
       SMTP_FROM: ${SMTP_FROM:-noreply@music-release.local}
