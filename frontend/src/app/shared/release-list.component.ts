@@ -7,27 +7,26 @@ import { ReleaseItem } from '../core/api.service';
   standalone: true,
   imports: [DatePipe],
   template: `
-    <ul class="list">
+    <ul class="list" [class.compact]="compact">
       @for (r of releases; track r.id; let i = $index) {
         <li class="item" [style.animation-delay.ms]="i * 45">
           <a class="row" [href]="r.spotifyUrl" target="_blank" rel="noopener">
             <div class="art" [class.placeholder]="!r.artworkUrl">
               @if (r.artworkUrl) {
                 <img [src]="r.artworkUrl" [alt]="r.title" loading="lazy" />
+              } @else {
+                <span aria-hidden="true">{{ initial(r) }}</span>
               }
+              <span class="play" aria-hidden="true">↗</span>
             </div>
             <div class="meta">
-              <div class="title">{{ r.title }}</div>
-              <div class="artists">
-                {{ artistNames(r) }}
-              </div>
               <div class="sub">
                 <span class="type">{{ typeLabel(r.releaseType) }}</span>
-                <span class="dot">·</span>
                 <span>{{ r.releaseDate | date: 'd MMM y' : undefined : 'it-IT' }}</span>
               </div>
+              <div class="title">{{ r.title }}</div>
+              <div class="artists">{{ artistNames(r) }}</div>
             </div>
-            <span class="go" aria-hidden="true">↗</span>
           </a>
         </li>
       }
@@ -39,35 +38,30 @@ import { ReleaseItem } from '../core/api.service';
         list-style: none;
         margin: 0;
         padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.55rem;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: clamp(1.25rem, 3vw, 2.5rem) clamp(0.8rem, 2vw, 1.5rem);
       }
       .item {
         animation: sleeve 420ms ease both;
+        min-width: 0;
       }
       .row {
-        display: grid;
-        grid-template-columns: 64px 1fr auto;
-        gap: 0.9rem;
-        align-items: center;
+        display: block;
         text-decoration: none;
         color: inherit;
-        padding: 0.55rem;
-        border-radius: 0.55rem;
-        transition: background 160ms ease, transform 160ms ease;
-      }
-      .row:hover {
-        background: color-mix(in oklab, var(--accent) 10%, transparent);
-        transform: translateX(2px);
+        transition: transform 220ms ease;
       }
       .art {
-        width: 64px;
-        height: 64px;
-        border-radius: 0.35rem;
+        aspect-ratio: 1;
+        width: 100%;
+        position: relative;
         overflow: hidden;
-        background: linear-gradient(145deg, #1c2430, #0e141c);
-        box-shadow: 0 8px 18px color-mix(in oklab, #000 28%, transparent);
+        background:
+          linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.2) 50%),
+          var(--accent-2);
+        box-shadow: 0 10px 25px rgba(37, 33, 25, 0.13);
+        transition: transform 240ms ease, box-shadow 240ms ease;
       }
       .art img {
         width: 100%;
@@ -75,33 +69,110 @@ import { ReleaseItem } from '../core/api.service';
         object-fit: cover;
         display: block;
       }
+      .art > span:first-child:not(.play) {
+        position: absolute;
+        left: 1rem;
+        bottom: 0.5rem;
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 8vw, 6rem);
+        color: rgba(255, 255, 255, 0.86);
+      }
+      .play {
+        position: absolute;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: var(--surface);
+        background: var(--ink);
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 180ms ease, transform 180ms ease;
+      }
+      .row:hover {
+        transform: translateY(-3px);
+      }
+      .row:hover .art {
+        box-shadow: 0 18px 35px rgba(37, 33, 25, 0.2);
+      }
+      .row:hover .play {
+        opacity: 1;
+        transform: none;
+      }
+      .meta {
+        padding-top: 0.85rem;
+      }
       .title {
         font-weight: 700;
-        letter-spacing: -0.02em;
-        line-height: 1.25;
+        font-size: 1.02rem;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        margin-top: 0.45rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .artists {
         color: var(--muted);
-        font-size: 0.92rem;
-        margin-top: 0.15rem;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .sub {
-        margin-top: 0.3rem;
-        font-size: 0.8rem;
+        font-size: 0.68rem;
         color: var(--muted-2);
         display: flex;
-        gap: 0.35rem;
+        justify-content: space-between;
+        gap: 0.5rem;
         align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
       .type {
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-weight: 600;
-        color: var(--accent-2);
+        font-weight: 700;
+        color: var(--accent);
       }
-      .go {
-        color: var(--muted);
-        font-size: 1.1rem;
+      .compact {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .compact .row {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+        padding: 0.4rem;
+        border-radius: 4px;
+      }
+      .compact .row:hover {
+        transform: translateX(3px);
+        background: rgba(255, 255, 255, 0.45);
+      }
+      .compact .art {
+        width: 68px;
+        height: 68px;
+      }
+      .compact .art > span:first-child:not(.play) {
+        font-size: 2rem;
+        left: 0.5rem;
+      }
+      .compact .play {
+        display: none;
+      }
+      .compact .meta {
+        padding: 0;
+      }
+      .compact .sub {
+        justify-content: flex-start;
+      }
+      .compact .title {
+        margin-top: 0.25rem;
       }
       @keyframes sleeve {
         from {
@@ -113,14 +184,36 @@ import { ReleaseItem } from '../core/api.service';
           transform: none;
         }
       }
+      @media (max-width: 900px) {
+        .list {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 640px) {
+        .list {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 1.5rem 0.8rem;
+        }
+        .play {
+          display: none;
+        }
+        .title {
+          font-size: 0.94rem;
+        }
+      }
     `,
   ],
 })
 export class ReleaseListComponent {
   @Input({ required: true }) releases: ReleaseItem[] = [];
+  @Input() compact = false;
 
   artistNames(r: ReleaseItem): string {
     return r.artists.map((a) => a.name).join(', ');
+  }
+
+  initial(r: ReleaseItem): string {
+    return r.title.trim().charAt(0).toUpperCase() || '♪';
   }
 
   typeLabel(t: ReleaseItem['releaseType']): string {
