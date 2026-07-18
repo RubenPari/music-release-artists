@@ -47,21 +47,3 @@ export async function migrate(): Promise<void> {
     }
   }
 }
-
-export async function ensureMigrated(): Promise<void> {
-  await migrate();
-}
-
-// Allow standalone: npm run migrate
-const isMain = process.argv[1]?.includes("migrate");
-if (isMain) {
-  migrate()
-    .then(() => {
-      console.log("Migrations complete");
-      return getPool().end();
-    })
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-}

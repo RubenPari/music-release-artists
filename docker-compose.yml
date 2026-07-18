@@ -19,6 +19,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command:
+      [
+        "sh",
+        "-c",
+        "npm run migrate && exec node --import tsx server/index.ts",
+      ]
     ports:
       - "4000:4000"
     environment:
@@ -37,6 +43,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build:

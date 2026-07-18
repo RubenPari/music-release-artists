@@ -10,8 +10,22 @@ function optional(name: string, fallback: string): string {
   return process.env[name] || fallback;
 }
 
+function boundedPositiveInteger(
+  name: string,
+  fallback: number,
+  maximum: number,
+): number {
+  const value = Number(optional(name, String(fallback)));
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return Math.min(value, maximum);
+}
+
 export const config = {
   databaseUrl: () => required("DATABASE_URL"),
+  databaseSslCaPath: () => process.env.DATABASE_SSL_CA_PATH || "",
+  databasePoolMax: () => boundedPositiveInteger("DATABASE_POOL_MAX", 8, 8),
   spotifyClientId: () => required("SPOTIFY_CLIENT_ID"),
   spotifyClientSecret: () => required("SPOTIFY_CLIENT_SECRET"),
   sessionSecret: () => required("SESSION_SECRET"),

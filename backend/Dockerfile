@@ -16,4 +16,4 @@ COPY server ./server
 COPY scripts ./scripts
 
 EXPOSE 4000
-CMD ["npx", "tsx", "server/index.ts"]
+CMD ["node", "--import", "tsx", "server/index.ts"]

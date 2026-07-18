@@ -1,12 +1,16 @@
-import { getPool } from "../db/db";
+import { closePool } from "../db/db";
 import { migrate } from "../db/migrate";
 
-migrate()
-  .then(() => {
+async function main(): Promise<void> {
+  try {
+    await migrate();
     console.log("Migrations complete");
-    return getPool().end();
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  } finally {
+    await closePool();
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
