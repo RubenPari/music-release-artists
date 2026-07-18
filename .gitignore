@@ -1,20 +1,57 @@
 # ==========================================
-# Common project files and directories
-# ==========================================
-
 # Dependencies
+# ==========================================
 node_modules/
+frontend/node_modules/
+backend/node_modules/
 .pnp
 .pnp.js
+.yarn/install-state.gz
 
-# Environment files (secrets)
+# ==========================================
+# Environment & secrets
+# ==========================================
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.*.example
 
-# Logs and debug
+# ==========================================
+# Encore.ts (backend)
+# ==========================================
+.encore/
+/.encore/
+encore.gen/
+/encore.gen
+encore.gen.go
+encore.gen.cue
+*.syso
+encore.local.env
+
+# ==========================================
+# Angular (frontend)
+# ==========================================
+.angular/
+frontend/.angular/
+dist/
+frontend/dist/
+out-tsc/
+frontend/out-tsc/
+*.ngsummary.json
+*.ngstyle.json
+.sass-cache/
+
+# ==========================================
+# Build & TypeScript
+# ==========================================
+build/
+dist-ssr/
+*.tsbuildinfo
+*.js.map
+
+# ==========================================
+# Logs & debug
+# ==========================================
 logs/
 *.log
 npm-debug.log*
@@ -23,35 +60,46 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Build and compiled output
-build/
-dist/
-dist-ssr/
-*.tsbuildinfo
+# ==========================================
+# Test & coverage
+# ==========================================
+coverage/
+frontend/coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+.jest/
 
-# Temporary files and cache
+# ==========================================
+# Cache & temp
+# ==========================================
 tmp/
 temp/
 .cache/
-*.tsbuildinfo
+.turbo/
+*.pid
+*.seed
+*.pid.lock
 
 # ==========================================
-# IDE e editor
+# IDE & editor
 # ==========================================
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
+.fleet
 *.sw?
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
-*.sw?
-.fleet
 
 # ==========================================
-# File di sistema operativo
+# OS
 # ==========================================
 .DS_Store
 Thumbs.db
@@ -60,32 +108,12 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # ==========================================
-# Backend (AdonisJS)
-# ==========================================
-backend/build/
-backend/tmp/*
-!backend/tmp/.gitkeep
-backend/.adonisjs/
-
-# ==========================================
-# Frontend (Vite)
-# ==========================================
-frontend/dist/
-frontend/dist-ssr/
-frontend/*.local
-
-# ==========================================
-# Test and coverage
-# ==========================================
-coverage/
-.nyc_output/
-*.lcov
-
-# ==========================================
 # Misc
 # ==========================================
-*.pid
-*.seed
-*.pid.lock
 *.tgz
 *.gz
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
