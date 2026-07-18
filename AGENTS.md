@@ -8,7 +8,7 @@
 ## Learned Workspace Facts
 
 - Product scope is in `REQUISITI.md`: track releases from Spotify followed artists, feed/calendar UI, email alerts (per-release or daily digest).
-- Local Compose stack: `postgres`, `mailpit`, `backend` (`:4000`), `frontend` (`:4200` with `/api` proxy); Mailpit UI on `:8025`.
+- Local Compose stack: `postgres`, `backend` (`:4000`), `frontend` (`:4200` with `/api` proxy); transactional email delivery uses the Brevo HTTP API.
 - Compose runtime serves the API with Hono and `DATABASE_URL` to Compose Postgres; Encore-managed Postgres is not used for that path.
 - Spotify OAuth redirect URI expected by the app: `http://127.0.0.1:4200/api/auth/spotify/callback` (must match the Spotify Developer Dashboard exactly; prefer `127.0.0.1` over `localhost`).
 - Layout is `backend/` + `frontend/` with root `docker-compose.yml` and `.env.example`.

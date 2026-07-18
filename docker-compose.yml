@@ -15,12 +15,6 @@ services:
       timeout: 5s
       retries: 10
 
-  mailpit:
-    image: axllent/mailpit:latest
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-
   backend:
     build:
       context: ./backend
@@ -36,15 +30,13 @@ services:
       TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:-dev-token-encryption-key-change-me}
       APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:4200/api}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://127.0.0.1:4200}
-      SMTP_HOST: mailpit
-      SMTP_PORT: "1025"
-      SMTP_FROM: ${SMTP_FROM:-noreply@music-release.local}
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL}
+      BREVO_SENDER_NAME: ${BREVO_SENDER_NAME:-Uscite}
       RELEASE_WINDOW_DAYS: ${RELEASE_WINDOW_DAYS:-90}
     depends_on:
       postgres:
         condition: service_healthy
-      mailpit:
-        condition: service_started
 
   frontend:
     build:

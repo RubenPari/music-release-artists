@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { config } from "../lib/config";
 import { signUnsubscribe } from "../lib/crypto";
 
@@ -10,16 +9,37 @@ export interface ReleaseEmailItem {
   spotifyUrl: string;
 }
 
-function transporter() {
-  return nodemailer.createTransport({
-    host: config.smtpHost(),
-    port: config.smtpPort(),
-    secure: false,
-    auth:
-      config.smtpUser() && config.smtpPass()
-        ? { user: config.smtpUser(), pass: config.smtpPass() }
-        : undefined,
+async function sendEmail(message: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<void> {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "api-key": config.brevoApiKey(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: {
+        name: config.brevoSenderName(),
+        email: config.brevoSenderEmail(),
+      },
+      to: [{ email: message.to }],
+      subject: message.subject,
+      htmlContent: message.html,
+      textContent: message.text,
+    }),
   });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      `Brevo email error ${response.status}: ${details.slice(0, 1000)}`,
+    );
+  }
 }
 
 function unsubscribeUrl(userId: string): string {
@@ -51,8 +71,7 @@ export async function sendPerReleaseEmail(
       </p>
     </div>
   `;
-  await transporter().sendMail({
-    from: config.smtpFrom(),
+  await sendEmail({
     to,
     subject: `Nuova uscita: ${item.title}`,
     html,
@@ -83,8 +102,7 @@ export async function sendDigestEmail(
       </p>
     </div>
   `;
-  await transporter().sendMail({
-    from: config.smtpFrom(),
+  await sendEmail({
     to,
     subject: `Digest: ${items.length} nuove uscite`,
     html,
