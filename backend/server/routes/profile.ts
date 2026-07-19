@@ -1,17 +1,16 @@
 import { exec, queryOne } from "../../db/db";
 import { config } from "../../lib/config";
-import { requireUser } from "../session";
 import { loadProfile } from "../services/profile";
 import type { AppHono } from "../types";
 
 export function registerProfileRoutes(app: AppHono): void {
   app.get("/profile", async (c) => {
-    const auth = await requireUser(c);
+    const auth = c.get("user");
     return c.json(await loadProfile(auth.userID));
   });
 
   app.put("/profile/preferences", async (c) => {
-    const auth = await requireUser(c);
+    const auth = c.get("user");
     const body = await c.req.json<{
       notificationsEnabled?: boolean;
       notificationMode?: "per_release" | "digest";

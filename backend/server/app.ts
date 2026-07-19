@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { config } from "../lib/config";
-import { AuthError } from "./session";
+import { AuthError, authMiddleware } from "./session";
 import { registerAuthRoutes } from "./routes/auth";
 import { registerFeedRoutes } from "./routes/feed";
 import { registerHealthRoutes } from "./routes/health";
@@ -36,6 +36,12 @@ export function createApp() {
       500,
     );
   });
+
+  app.use("/sync/*", authMiddleware);
+  app.use("/feed/*", authMiddleware);
+  app.use("/profile", authMiddleware);
+  app.use("/profile/*", authMiddleware);
+  app.use("/auth/me", authMiddleware);
 
   registerHealthRoutes(app);
   registerAuthRoutes(app);

@@ -106,7 +106,7 @@ export function registerAuthRoutes(app: AppHono): void {
   });
 
   app.get("/auth/me", async (c) => {
-    const auth = await requireUser(c);
+    const auth = c.get("user");
     const user = await queryOne<{
       id: string;
       display_name: string;

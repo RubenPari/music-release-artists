@@ -1,11 +1,11 @@
 import { queryOne } from "../../db/db";
 import { syncUserFull } from "../../sync/engine";
-import { AuthError, requireUser } from "../session";
+import { AuthError } from "../session";
 import type { AppHono } from "../types";
 
 export function registerSyncRoutes(app: AppHono): void {
   app.post("/sync/refresh", async (c) => {
-    const auth = await requireUser(c);
+    const auth = c.get("user");
     try {
       const result = await syncUserFull(auth.userID);
       return c.json({ status: "ok", ...result });
@@ -21,7 +21,7 @@ export function registerSyncRoutes(app: AppHono): void {
   });
 
   app.get("/sync/status", async (c) => {
-    const auth = await requireUser(c);
+    const auth = c.get("user");
     const row = await queryOne<{
       finished_at: Date | null;
       status: string;
