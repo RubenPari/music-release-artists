@@ -42,12 +42,10 @@ set +a
 : "${IMAGE_TAG:?IMAGE_TAG is required}"
 : "${PUBLIC_DOMAIN:?PUBLIC_DOMAIN is required}"
 : "${ACME_EMAIL:?ACME_EMAIL is required}"
-: "${GHCR_USERNAME:?GHCR_USERNAME is required}"
-: "${GHCR_TOKEN_FILE:?GHCR_TOKEN_FILE is required}"
 : "${APP_ENV_FILE:?APP_ENV_FILE is required}"
 : "${DATABASE_CA_FILE:?DATABASE_CA_FILE is required}"
 
-for protected_file in "$GHCR_TOKEN_FILE" "$APP_ENV_FILE" "$DATABASE_CA_FILE"; do
+for protected_file in "$APP_ENV_FILE" "$DATABASE_CA_FILE"; do
   if [[ ! -r "$protected_file" ]]; then
     echo "Required file is not readable: $protected_file" >&2
     exit 1
@@ -105,8 +103,18 @@ if [[ "$previous_tag" == "$new_tag" ]]; then
   exit 0
 fi
 
-echo "Authenticating to GHCR..."
-docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin <"$GHCR_TOKEN_FILE"
+if [[ -n "${GHCR_USERNAME:-}" || -n "${GHCR_TOKEN_FILE:-}" ]]; then
+  : "${GHCR_USERNAME:?GHCR_USERNAME is required when GHCR_TOKEN_FILE is set}"
+  : "${GHCR_TOKEN_FILE:?GHCR_TOKEN_FILE is required when GHCR_USERNAME is set}"
+  if [[ ! -r "$GHCR_TOKEN_FILE" ]]; then
+    echo "Required file is not readable: $GHCR_TOKEN_FILE" >&2
+    exit 1
+  fi
+  echo "Authenticating to GHCR..."
+  docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin <"$GHCR_TOKEN_FILE"
+else
+  echo "Using anonymous GHCR access for public images."
+fi
 
 echo "Pulling release ${new_tag}..."
 IMAGE_TAG="$new_tag" compose pull backend frontend
