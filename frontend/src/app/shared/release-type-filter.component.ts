@@ -1,9 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ReleaseType } from '../core/api.service';
+import { ReleaseTypeLabelPipe } from '../core/release-type-label';
 
 @Component({
   selector: 'app-release-type-filter',
   standalone: true,
+  imports: [ReleaseTypeLabelPipe],
   template: `
     <div class="filters" role="group" aria-label="Filtra per tipo">
       @for (t of allTypes; track t) {
@@ -14,7 +16,7 @@ import { ReleaseType } from '../core/api.service';
           [attr.aria-pressed]="selected.includes(t)"
           (click)="toggle(t)"
         >
-          {{ label(t) }}
+          {{ t | releaseTypeLabel }}
         </button>
       }
     </div>
@@ -25,12 +27,6 @@ export class ReleaseTypeFilterComponent {
   @Output() selectedChange = new EventEmitter<ReleaseType[]>();
 
   readonly allTypes: ReleaseType[] = ['album', 'single', 'ep'];
-
-  label(t: ReleaseType): string {
-    if (t === 'album') return 'Album';
-    if (t === 'ep') return 'EP';
-    return 'Single';
-  }
 
   toggle(t: ReleaseType): void {
     const cur = this.selected;
