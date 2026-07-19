@@ -32,7 +32,9 @@ export async function syncUserFull(userId: string): Promise<{
       `UPDATE sync_runs SET status = 'success', finished_at = NOW() WHERE id = $1`,
       [runId],
     );
-    await enqueuePerReleaseNotifications(userId);
+    if (config.emailEnabled()) {
+      await enqueuePerReleaseNotifications(userId);
+    }
     return { artists: artistsCount, releases: releasesCount };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

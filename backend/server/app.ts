@@ -248,6 +248,20 @@ export function createApp() {
       notificationEmail?: string;
     }>();
 
+    const changesEmailPreferences =
+      body.notificationsEnabled !== undefined ||
+      body.notificationMode !== undefined ||
+      body.notificationEmail !== undefined;
+    if (!config.emailEnabled() && changesEmailPreferences) {
+      return c.json(
+        {
+          message: "Le notifiche email non sono disponibili.",
+          code: "email_disabled",
+        },
+        403,
+      );
+    }
+
     if (
       body.notificationMode &&
       body.notificationMode !== "per_release" &&
@@ -353,7 +367,8 @@ async function loadProfile(userId: string) {
     displayName: row.display_name,
     email: row.email,
     avatarUrl: row.avatar_url,
-    notificationsEnabled: row.enabled,
+    emailEnabled: config.emailEnabled(),
+    notificationsEnabled: config.emailEnabled() && row.enabled,
     notificationMode: row.mode,
     notificationEmail: row.pref_email,
     lastSyncAt: row.last_sync_at

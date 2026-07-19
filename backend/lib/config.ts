@@ -10,6 +10,18 @@ function optional(name: string, fallback: string): string {
   return process.env[name] || fallback;
 }
 
+function boolean(name: string, fallback: boolean): boolean {
+  const value = process.env[name];
+  if (value === undefined || value === "") return fallback;
+  if (value === "true" || value === "1") return true;
+  if (value === "false" || value === "0") return false;
+  throw new Error(`${name} must be true, false, 1, or 0`);
+}
+
+function requiredWhenEmailEnabled(name: string): string {
+  return config.emailEnabled() ? required(name) : "";
+}
+
 function boundedPositiveInteger(
   name: string,
   fallback: number,
@@ -32,8 +44,9 @@ export const config = {
   tokenEncryptionKey: () => required("TOKEN_ENCRYPTION_KEY"),
   appBaseUrl: () => optional("APP_BASE_URL", "http://localhost:4000"),
   frontendOrigin: () => optional("FRONTEND_ORIGIN", "http://127.0.0.1:4200"),
-  brevoApiKey: () => required("BREVO_API_KEY"),
-  brevoSenderEmail: () => required("BREVO_SENDER_EMAIL"),
+  emailEnabled: () => boolean("EMAIL_ENABLED", true),
+  brevoApiKey: () => requiredWhenEmailEnabled("BREVO_API_KEY"),
+  brevoSenderEmail: () => requiredWhenEmailEnabled("BREVO_SENDER_EMAIL"),
   brevoSenderName: () => optional("BREVO_SENDER_NAME", "Uscite"),
   releaseWindowDays: () => Number(optional("RELEASE_WINDOW_DAYS", "90")),
   sessionCookieName: "mra_session",

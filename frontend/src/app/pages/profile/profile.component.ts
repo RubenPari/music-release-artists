@@ -37,64 +37,75 @@ import { ShellComponent } from '../../shared/shell.component';
           </section>
 
           <section class="card preferences">
-            <div class="card-head">
-              <div>
-                <span class="section-label">Avvisi</span>
-                <h3>Notifiche email</h3>
+            @if (p.emailEnabled) {
+              <div class="card-head">
+                <div>
+                  <span class="section-label">Avvisi</span>
+                  <h3>Notifiche email</h3>
+                </div>
+                <label class="switch">
+                  <input
+                    type="checkbox"
+                    [ngModel]="p.notificationsEnabled"
+                    (ngModelChange)="onEnabled($event)"
+                  />
+                  <span aria-hidden="true"></span>
+                  <b>{{ p.notificationsEnabled ? 'Attive' : 'Disattivate' }}</b>
+                </label>
               </div>
-              <label class="switch">
-                <input
-                  type="checkbox"
-                  [ngModel]="p.notificationsEnabled"
-                  (ngModelChange)="onEnabled($event)"
-                />
-                <span aria-hidden="true"></span>
-                <b>{{ p.notificationsEnabled ? 'Attive' : 'Disattivate' }}</b>
-              </label>
-            </div>
 
-            <label class="field">
-              <span>Indirizzo email</span>
-              <input
-                type="email"
-                [ngModel]="email()"
-                (ngModelChange)="email.set($event)"
-                (blur)="saveEmail()"
-                placeholder="nome@email.com"
-              />
-            </label>
+              <label class="field">
+                <span>Indirizzo email</span>
+                <input
+                  type="email"
+                  [ngModel]="email()"
+                  (ngModelChange)="email.set($event)"
+                  (blur)="saveEmail()"
+                  placeholder="nome@email.com"
+                />
+              </label>
 
-            <fieldset class="modes" [disabled]="!p.notificationsEnabled">
-              <legend>Frequenza</legend>
-              <label [class.selected]="p.notificationMode === 'per_release'">
-                <input
-                  type="radio"
-                  name="mode"
-                  value="per_release"
-                  [ngModel]="p.notificationMode"
-                  (ngModelChange)="onMode($event)"
-                />
-                <span>
-                  <strong>Appena esce</strong>
-                  <small>Una mail per ogni nuova uscita</small>
-                </span>
-              </label>
-              <label [class.selected]="p.notificationMode === 'digest'">
-                <input
-                  type="radio"
-                  name="mode"
-                  value="digest"
-                  [ngModel]="p.notificationMode"
-                  (ngModelChange)="onMode($event)"
-                />
-                <span>
-                  <strong>Riepilogo giornaliero</strong>
-                  <small>Una sola mail con tutte le novità</small>
-                </span>
-              </label>
-            </fieldset>
-            @if (saved()) {
-              <p class="ok">Salvato</p>
+              <fieldset class="modes" [disabled]="!p.notificationsEnabled">
+                <legend>Frequenza</legend>
+                <label [class.selected]="p.notificationMode === 'per_release'">
+                  <input
+                    type="radio"
+                    name="mode"
+                    value="per_release"
+                    [ngModel]="p.notificationMode"
+                    (ngModelChange)="onMode($event)"
+                  />
+                  <span>
+                    <strong>Appena esce</strong>
+                    <small>Una mail per ogni nuova uscita</small>
+                  </span>
+                </label>
+                <label [class.selected]="p.notificationMode === 'digest'">
+                  <input
+                    type="radio"
+                    name="mode"
+                    value="digest"
+                    [ngModel]="p.notificationMode"
+                    (ngModelChange)="onMode($event)"
+                  />
+                  <span>
+                    <strong>Riepilogo giornaliero</strong>
+                    <small>Una sola mail con tutte le novità</small>
+                  </span>
+                </label>
+              </fieldset>
+              @if (saved()) {
+                <p class="ok">Salvato</p>
+              }
+            } @else {
+              <div class="unavailable">
+                <span class="section-label">Avvisi</span>
+                <h3>Notifiche email non disponibili</h3>
+                <p>
+                  Puoi continuare a consultare tutte le nuove uscite dal feed e
+                  dal calendario.
+                </p>
+              </div>
             }
           </section>
 
@@ -186,6 +197,14 @@ import { ShellComponent } from '../../shared/shell.component';
       }
       .preferences {
         grid-row: span 2;
+      }
+      .unavailable {
+        max-width: 32rem;
+      }
+      .unavailable p {
+        margin: 1rem 0 0;
+        color: var(--muted);
+        line-height: 1.6;
       }
       .card-head {
         display: flex;

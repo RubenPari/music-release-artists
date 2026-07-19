@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import cron from "node-cron";
 import { closePool } from "../db/db";
+import { config } from "../lib/config";
 import { syncAllUsers } from "../sync/engine";
 import {
   processPerReleaseOutbox,
@@ -28,22 +29,27 @@ async function main() {
     console.log("[cron] periodic sync");
     runJob("sync", syncAllUsers);
   });
+  const tasks = [syncTask];
 
-  // Daily digest 08:00 UTC
-  const digestTask = cron.schedule("0 8 * * *", () => {
-    console.log("[cron] daily digest");
-    runJob("digest", sendDailyDigests);
-  });
+  if (config.emailEnabled()) {
+    // Daily digest 08:00 UTC
+    const digestTask = cron.schedule("0 8 * * *", () => {
+      console.log("[cron] daily digest");
+      runJob("digest", sendDailyDigests);
+    });
 
-  // Hourly outbox drain
-  const outboxTask = cron.schedule("15 * * * *", () => {
-    console.log("[cron] email outbox");
-    runJob("outbox", processPerReleaseOutbox);
-  });
+    // Hourly outbox drain
+    const outboxTask = cron.schedule("15 * * * *", () => {
+      console.log("[cron] email outbox");
+      runJob("outbox", processPerReleaseOutbox);
+    });
+    tasks.push(digestTask, outboxTask);
+  } else {
+    console.log("[cron] email disabled; skipping digest and outbox jobs");
+  }
 
   console.log(`API listening on http://0.0.0.0:${port}`);
   const server = serve({ fetch: app.fetch, port, hostname: "0.0.0.0" });
-  const tasks = [syncTask, digestTask, outboxTask];
   let shuttingDown = false;
 
   const shutdown = async (signal: string) => {

@@ -14,7 +14,7 @@ Stack: **TypeScript backend** (Hono + moduli `sync`/`notifications`/`db`, cron c
 - App Spotify su [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
   - Redirect URI: `http://127.0.0.1:4200/api/auth/spotify/callback`
   - Scopes usati: `user-follow-read`, `user-read-email`
-- Account Brevo con un mittente verificato
+- Account Brevo con un mittente verificato, solo se abiliti le notifiche email
 
 ### Config
 
@@ -23,9 +23,11 @@ cp .env.example .env
 # Imposta le credenziali Spotify e Brevo
 ```
 
-Configura l'API transazionale Brevo:
+Le notifiche email sono disabilitate di default. Per abilitarle configura l'API
+transazionale Brevo:
 
 ```dotenv
+EMAIL_ENABLED=true
 BREVO_API_KEY=xkeysib-...
 BREVO_SENDER_EMAIL=notifications@example.com
 BREVO_SENDER_NAME=Uscite
@@ -52,7 +54,7 @@ docker compose up --build
 - Sync artisti seguiti + uscite (album/single/EP, ultimi 90 giorni)
 - Refresh on-demand e sync periodica (ogni 8 ore)
 - Feed e calendario con filtri
-- Notifiche email opt-in (per uscita o digest giornaliero) + unsubscribe
+- Notifiche email opt-in (per uscita o digest giornaliero) + unsubscribe, se abilitate
 - Isolamento dati per utente; token Spotify cifrati a riposo
 
 ## Sviluppo locale (senza rebuild frontend)
