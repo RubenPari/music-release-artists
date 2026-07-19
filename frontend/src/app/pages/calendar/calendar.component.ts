@@ -1,15 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ApiService, ReleaseItem } from '../../core/api.service';
+import { ApiService, ReleaseItem, ReleaseType } from '../../core/api.service';
 import { ShellComponent } from '../../shared/shell.component';
 import { ReleaseListComponent } from '../../shared/release-list.component';
-
-type ReleaseType = 'album' | 'single' | 'ep';
+import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.component';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [ShellComponent, ReleaseListComponent, DatePipe],
+  imports: [ShellComponent, ReleaseListComponent, DatePipe, ReleaseTypeFilterComponent],
   template: `
     <app-shell
       title="Calendario"
@@ -17,19 +16,10 @@ type ReleaseType = 'album' | 'single' | 'ep';
     >
       <div class="filter-bar">
         <span>Filtra il calendario</span>
-        <div class="filters" role="group" aria-label="Filtra per tipo">
-          @for (t of allTypes; track t) {
-            <button
-              type="button"
-              class="chip"
-              [class.on]="selected().includes(t)"
-              [attr.aria-pressed]="selected().includes(t)"
-              (click)="toggle(t)"
-            >
-              {{ label(t) }}
-            </button>
-          }
-        </div>
+        <app-release-type-filter
+          [selected]="selected()"
+          (selectedChange)="onTypes($event)"
+        />
       </div>
 
       @if (loading()) {
@@ -77,26 +67,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
-      .filters {
-        display: flex;
-        gap: 0.35rem;
-      }
-      .chip {
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--ink);
-        border-radius: 999px;
-        padding: 0.4rem 0.8rem;
-        font: inherit;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      .chip.on {
-        color: var(--surface);
-        background: var(--ink);
-        border-color: var(--ink);
-      }
       .days {
         display: flex;
         flex-direction: column;
@@ -142,13 +112,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         letter-spacing: -0.02em;
         text-transform: capitalize;
       }
-      .state {
-        color: var(--muted);
-        padding: 1.5rem 0;
-      }
-      .state.error {
-        color: #9e382b;
-      }
       @media (max-width: 560px) {
         .day {
           grid-template-columns: 62px minmax(0, 1fr);
@@ -163,7 +126,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
 })
 export class CalendarComponent implements OnInit {
   private readonly api = inject(ApiService);
-  readonly allTypes: ReleaseType[] = ['album', 'single', 'ep'];
   readonly selected = signal<ReleaseType[]>(['album', 'single', 'ep']);
   readonly days = signal<{ date: string; releases: ReleaseItem[] }[]>([]);
   readonly loading = signal(true);
@@ -173,16 +135,8 @@ export class CalendarComponent implements OnInit {
     this.load();
   }
 
-  label(t: ReleaseType): string {
-    if (t === 'album') return 'Album';
-    if (t === 'ep') return 'EP';
-    return 'Single';
-  }
-
-  toggle(t: ReleaseType): void {
-    const cur = this.selected();
-    const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
-    this.selected.set(next.length ? next : cur);
+  onTypes(next: ReleaseType[]): void {
+    this.selected.set(next);
     this.load();
   }
 

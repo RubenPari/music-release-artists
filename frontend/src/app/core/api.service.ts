@@ -9,10 +9,12 @@ export interface UserMe {
   avatarUrl: string | null;
 }
 
+export type ReleaseType = 'album' | 'single' | 'ep';
+
 export interface ReleaseItem {
   id: string;
   title: string;
-  releaseType: 'album' | 'single' | 'ep';
+  releaseType: ReleaseType;
   releaseDate: string;
   artworkUrl: string | null;
   spotifyUrl: string;
