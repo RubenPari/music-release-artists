@@ -53,24 +53,38 @@ function typeLabel(t: string): string {
   return "Single";
 }
 
+function renderLayout(
+  bodyHtml: string,
+  unsubUrl: string,
+  maxWidth: number,
+): string {
+  return `
+    <div style="font-family: Georgia, serif; max-width: ${maxWidth}px;">
+      ${bodyHtml}
+      <hr />
+      <p style="font-size: 12px; color: #666;">
+        <a href="${unsubUrl}">Disattiva le notifiche</a>
+      </p>
+    </div>
+  `;
+}
+
 export async function sendPerReleaseEmail(
   userId: string,
   to: string,
   item: ReleaseEmailItem,
 ): Promise<void> {
   const unsub = unsubscribeUrl(userId);
-  const html = `
-    <div style="font-family: Georgia, serif; max-width: 520px;">
+  const html = renderLayout(
+    `
       <h1 style="font-size: 22px;">Nuova uscita</h1>
       <p><strong>${escapeHtml(item.title)}</strong> — ${escapeHtml(item.artists)}</p>
       <p>${typeLabel(item.releaseType)} · ${escapeHtml(item.releaseDate)}</p>
       <p><a href="${item.spotifyUrl}">Apri su Spotify</a></p>
-      <hr />
-      <p style="font-size: 12px; color: #666;">
-        <a href="${unsub}">Disattiva le notifiche</a>
-      </p>
-    </div>
-  `;
+    `,
+    unsub,
+    520,
+  );
   await sendEmail({
     to,
     subject: `Nuova uscita: ${item.title}`,
@@ -91,17 +105,15 @@ export async function sendDigestEmail(
         `<li><strong>${escapeHtml(i.title)}</strong> — ${escapeHtml(i.artists)} (${typeLabel(i.releaseType)}, ${escapeHtml(i.releaseDate)}) — <a href="${i.spotifyUrl}">Spotify</a></li>`,
     )
     .join("");
-  const html = `
-    <div style="font-family: Georgia, serif; max-width: 560px;">
+  const html = renderLayout(
+    `
       <h1 style="font-size: 22px;">Digest uscite del giorno</h1>
       <p>${items.length} nuove uscite dai tuoi artisti:</p>
       <ul>${list}</ul>
-      <hr />
-      <p style="font-size: 12px; color: #666;">
-        <a href="${unsub}">Disattiva le notifiche</a>
-      </p>
-    </div>
-  `;
+    `,
+    unsub,
+    560,
+  );
   await sendEmail({
     to,
     subject: `Digest: ${items.length} nuove uscite`,
