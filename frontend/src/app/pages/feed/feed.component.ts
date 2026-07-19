@@ -1,8 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ApiService, ReleaseItem, ReleaseType } from '../../core/api.service';
+import { ApiService, ReleaseItem } from '../../core/api.service';
+import { extractApiError } from '../../core/api-error';
+import { RELEASE_WINDOW_DAYS } from '../../core/release-window';
 import { ShellComponent } from '../../shared/shell.component';
 import { ReleaseListComponent } from '../../shared/release-list.component';
 import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.component';
+import { FilteredReleasesPage } from '../../shared/filtered-releases-page';
 
 @Component({
   selector: 'app-feed',
@@ -47,12 +50,12 @@ import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.com
         <div class="state empty">
           <span class="empty-record" aria-hidden="true"></span>
           <strong>Lo scaffale è ancora vuoto.</strong>
-          <span>Cerca nuove uscite per sincronizzare gli ultimi 90 giorni.</span>
+          <span>Cerca nuove uscite per sincronizzare gli ultimi {{ windowDays }} giorni.</span>
         </div>
       } @else {
         <div class="result-line">
           <span>{{ releases().length }} uscite</span>
-          <span>Ultimi 90 giorni</span>
+          <span>Ultimi {{ windowDays }} giorni</span>
         </div>
         <app-release-list [releases]="releases()" />
       }
@@ -176,20 +179,13 @@ import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.com
     `,
   ],
 })
-export class FeedComponent implements OnInit {
+export class FeedComponent extends FilteredReleasesPage implements OnInit {
   private readonly api = inject(ApiService);
-  readonly selected = signal<ReleaseType[]>(['album', 'single', 'ep']);
   readonly releases = signal<ReleaseItem[]>([]);
-  readonly loading = signal(true);
   readonly syncing = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly windowDays = RELEASE_WINDOW_DAYS;
 
   ngOnInit(): void {
-    this.load();
-  }
-
-  onTypes(next: ReleaseType[]): void {
-    this.selected.set(next);
     this.load();
   }
 
@@ -203,14 +199,12 @@ export class FeedComponent implements OnInit {
       },
       error: (err) => {
         this.syncing.set(false);
-        this.error.set(
-          err?.error?.message || 'Sincronizzazione non riuscita.',
-        );
+        this.error.set(extractApiError(err, 'Sincronizzazione non riuscita.'));
       },
     });
   }
 
-  private load(): void {
+  protected load(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api.feedReleases(this.selected()).subscribe({
@@ -220,7 +214,7 @@ export class FeedComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message || 'Impossibile caricare il feed.');
+        this.error.set(extractApiError(err, 'Impossibile caricare il feed.'));
       },
     });
   }

@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ApiService, ReleaseItem, ReleaseType } from '../../core/api.service';
+import { ApiService, ReleaseItem } from '../../core/api.service';
+import { extractApiError } from '../../core/api-error';
 import { ShellComponent } from '../../shared/shell.component';
 import { ReleaseListComponent } from '../../shared/release-list.component';
 import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.component';
+import { FilteredReleasesPage } from '../../shared/filtered-releases-page';
 
 @Component({
   selector: 'app-calendar',
@@ -33,12 +35,12 @@ import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.com
           @for (d of days(); track d.date) {
             <section class="day">
               <div class="date">
-                <strong>{{ d.date | date: 'dd' : undefined : 'it-IT' }}</strong>
-                <span>{{ d.date | date: 'MMM' : undefined : 'it-IT' }}</span>
-                <small>{{ d.date | date: 'y' : undefined : 'it-IT' }}</small>
+                <strong>{{ d.date | date: 'dd' }}</strong>
+                <span>{{ d.date | date: 'MMM' }}</span>
+                <small>{{ d.date | date: 'y' }}</small>
               </div>
               <div class="day-content">
-                <h2>{{ d.date | date: 'EEEE' : undefined : 'it-IT' }}</h2>
+                <h2>{{ d.date | date: 'EEEE' }}</h2>
                 <app-release-list [releases]="d.releases" [compact]="true" />
               </div>
             </section>
@@ -124,23 +126,15 @@ import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.com
     `,
   ],
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent extends FilteredReleasesPage implements OnInit {
   private readonly api = inject(ApiService);
-  readonly selected = signal<ReleaseType[]>(['album', 'single', 'ep']);
   readonly days = signal<{ date: string; releases: ReleaseItem[] }[]>([]);
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.load();
   }
 
-  onTypes(next: ReleaseType[]): void {
-    this.selected.set(next);
-    this.load();
-  }
-
-  private load(): void {
+  protected load(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api.feedCalendar(this.selected()).subscribe({
@@ -151,7 +145,7 @@ export class CalendarComponent implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.error.set(
-          err?.error?.message || 'Impossibile caricare il calendario.',
+          extractApiError(err, 'Impossibile caricare il calendario.'),
         );
       },
     });

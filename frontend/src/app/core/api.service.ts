@@ -67,20 +67,25 @@ export class ApiService {
   }
 
   feedReleases(types: string[]) {
-    let params = new HttpParams();
-    if (types.length) params = params.set('types', types.join(','));
     return this.http.get<{ releases: ReleaseItem[] }>(
       `${this.base}/feed/releases`,
-      { params, withCredentials: true },
+      { params: this.typesParams(types), withCredentials: true },
     );
   }
 
   feedCalendar(types: string[]) {
-    let params = new HttpParams();
-    if (types.length) params = params.set('types', types.join(','));
     return this.http.get<{
       days: { date: string; releases: ReleaseItem[] }[];
-    }>(`${this.base}/feed/calendar`, { params, withCredentials: true });
+    }>(`${this.base}/feed/calendar`, {
+      params: this.typesParams(types),
+      withCredentials: true,
+    });
+  }
+
+  private typesParams(types: string[]): HttpParams {
+    let params = new HttpParams();
+    if (types.length) params = params.set('types', types.join(','));
+    return params;
   }
 
   getProfile() {
