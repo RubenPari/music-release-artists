@@ -1,11 +1,7 @@
 import { exec, query, queryOne } from "../db/db";
 import { config } from "../lib/config";
-import {
-  classifyReleaseType,
-  fetchArtistAlbums,
-  fetchFollowedArtists,
-  parseReleaseDate,
-} from "../lib/spotify";
+import { classifyReleaseType, parseReleaseDate } from "../lib/release-type";
+import { fetchArtistAlbums, fetchFollowedArtists } from "../lib/spotify";
 import { enqueuePerReleaseNotifications } from "../notifications/outbox";
 
 const running = new Set<string>();
