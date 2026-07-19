@@ -134,7 +134,7 @@ Copia e compila i template:
 - [`deploy/migration.env.example`](deploy/migration.env.example) →
   `/etc/music-release-artists/migration.env`
 - CA DigitalOcean → `/etc/music-release-artists/ca-certificate.crt`
-- PAT GitHub con solo `read:packages` →
+- solo per immagini GHCR private: PAT GitHub con `read:packages` →
   `/etc/music-release-artists/ghcr-token`
 
 Proteggi tutti i file:
@@ -179,7 +179,8 @@ La pipeline [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
    `/api/health/ready`;
 5. ripristina automaticamente il tag precedente se la readiness fallisce.
 
-Il token GHCR presente sul Droplet deve appartenere all'utente indicato da
+Le immagini pubbliche vengono scaricate senza credenziali. Per immagini private,
+il token GHCR sul Droplet deve appartenere all'utente indicato da
 `GHCR_USERNAME` in `deploy.env`. Le migration production devono essere additive
 e retrocompatibili: il rollback cambia le immagini, non esegue migration `down`.
 
