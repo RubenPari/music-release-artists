@@ -24,6 +24,7 @@ export interface Profile {
   displayName: string;
   email: string | null;
   avatarUrl: string | null;
+  emailEnabled: boolean;
   notificationsEnabled: boolean;
   notificationMode: 'per_release' | 'digest';
   notificationEmail: string | null;

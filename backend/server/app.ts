@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { getCookie, setCookie } from "hono/cookie";
 import { exec, query, queryOne } from "../db/db";
-import { ensureMigrated } from "../db/migrate";
 import { config } from "../lib/config";
 import { randomToken, verifyUnsubscribe } from "../lib/crypto";
 import {
@@ -37,11 +36,6 @@ export function createApp() {
     }),
   );
 
-  app.use("*", async (_c, next) => {
-    await ensureMigrated();
-    await next();
-  });
-
   app.onError((err, c) => {
     if (err instanceof AuthError) {
       return c.json({ message: err.message, code: "unauthenticated" }, 401);
@@ -57,6 +51,11 @@ export function createApp() {
   });
 
   app.get("/health", (c) => c.json({ ok: true }));
+  app.get("/health/live", (c) => c.json({ ok: true }));
+  app.get("/health/ready", async (c) => {
+    await queryOne<{ ready: number }>("SELECT 1 AS ready");
+    return c.json({ ok: true, database: "ready" });
+  });
 
   // ---- Auth ----
   app.get("/auth/spotify", async (c) => {
@@ -66,6 +65,7 @@ export function createApp() {
       httpOnly: true,
       sameSite: "Lax",
       maxAge: 600,
+      secure: config.appBaseUrl().startsWith("https"),
     });
     return c.redirect(authorizeUrl(state));
   });
@@ -248,6 +248,20 @@ export function createApp() {
       notificationEmail?: string;
     }>();
 
+    const changesEmailPreferences =
+      body.notificationsEnabled !== undefined ||
+      body.notificationMode !== undefined ||
+      body.notificationEmail !== undefined;
+    if (!config.emailEnabled() && changesEmailPreferences) {
+      return c.json(
+        {
+          message: "Le notifiche email non sono disponibili.",
+          code: "email_disabled",
+        },
+        403,
+      );
+    }
+
     if (
       body.notificationMode &&
       body.notificationMode !== "per_release" &&
@@ -353,7 +367,8 @@ async function loadProfile(userId: string) {
     displayName: row.display_name,
     email: row.email,
     avatarUrl: row.avatar_url,
-    notificationsEnabled: row.enabled,
+    emailEnabled: config.emailEnabled(),
+    notificationsEnabled: config.emailEnabled() && row.enabled,
     notificationMode: row.mode,
     notificationEmail: row.pref_email,
     lastSyncAt: row.last_sync_at

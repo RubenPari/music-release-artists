@@ -1,9 +1,12 @@
 import { exec, query, queryOne } from "../db/db";
+import { config } from "../lib/config";
 import { sendDigestEmail, sendPerReleaseEmail } from "./email";
 
 export async function enqueuePerReleaseNotifications(
   userId: string,
 ): Promise<void> {
+  if (!config.emailEnabled()) return;
+
   const prefs = await queryOne<{
     enabled: boolean;
     mode: string;
@@ -29,6 +32,8 @@ export async function enqueuePerReleaseNotifications(
 }
 
 export async function processPerReleaseOutbox(userId?: string): Promise<void> {
+  if (!config.emailEnabled()) return;
+
   const rows = await query<{
     id: string;
     user_id: string;
@@ -89,6 +94,8 @@ export async function processPerReleaseOutbox(userId?: string): Promise<void> {
 }
 
 export async function sendDailyDigests(): Promise<void> {
+  if (!config.emailEnabled()) return;
+
   const users = await query<{
     user_id: string;
     email: string;

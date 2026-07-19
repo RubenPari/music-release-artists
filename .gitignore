@@ -15,6 +15,10 @@ backend/node_modules/
 .env.*
 !.env.example
 !.env.*.example
+deploy/*.env
+*.crt
+*.key
+.deploy-previous
 
 # ==========================================
 # Encore.ts (backend)

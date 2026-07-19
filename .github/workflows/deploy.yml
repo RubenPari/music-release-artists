@@ -1,0 +1,125 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+env:
+  IMAGE_REGISTRY: ghcr.io/rubenpari/music-release-artists
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Test backend
+        working-directory: backend
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm test
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  build:
+    needs: verify
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_REGISTRY }}/${{ matrix.service }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    needs: build
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+          SSH_HOST_KEY: ${{ secrets.DO_SSH_HOST_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_HOST_KEY" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Upload deployment configuration
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USER: ${{ secrets.DO_USER }}
+        run: |
+          tar -czf "/tmp/mra-${GITHUB_SHA}.tgz" \
+            docker-compose.prod.yml \
+            deploy/Caddyfile \
+            deploy/deploy.sh \
+            deploy/music-release-artists.service
+          scp "/tmp/mra-${GITHUB_SHA}.tgz" \
+            "${DO_USER}@${DO_HOST}:/tmp/mra-${GITHUB_SHA}.tgz"
+
+      - name: Deploy release
+        env:
+          DO_HOST: ${{ secrets.DO_HOST }}
+          DO_USER: ${{ secrets.DO_USER }}
+        run: |
+          ssh "${DO_USER}@${DO_HOST}" bash -s -- "$GITHUB_SHA" <<'REMOTE'
+          set -Eeuo pipefail
+          sha="$1"
+          sudo mkdir -p /opt/music-release-artists
+          sudo tar -xzf "/tmp/mra-${sha}.tgz" -C /opt/music-release-artists
+          sudo chmod +x /opt/music-release-artists/deploy/deploy.sh
+          sudo /opt/music-release-artists/deploy/deploy.sh "$sha"
+          rm -f "/tmp/mra-${sha}.tgz"
+          REMOTE
+
+      - name: External readiness check
+        env:
+          PUBLIC_DOMAIN: ${{ secrets.PUBLIC_DOMAIN }}
+        run: |
+          curl --fail --show-error --silent \
+            --retry 12 --retry-delay 5 --retry-all-errors \
+            "https://${PUBLIC_DOMAIN}/api/health/ready"
