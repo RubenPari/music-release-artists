@@ -1,15 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ApiService, ReleaseItem } from '../../core/api.service';
+import { extractApiError } from '../../core/api-error';
 import { ShellComponent } from '../../shared/shell.component';
 import { ReleaseListComponent } from '../../shared/release-list.component';
-
-type ReleaseType = 'album' | 'single' | 'ep';
+import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.component';
+import { FilteredReleasesPage } from '../../shared/filtered-releases-page';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [ShellComponent, ReleaseListComponent, DatePipe],
+  imports: [ShellComponent, ReleaseListComponent, DatePipe, ReleaseTypeFilterComponent],
   template: `
     <app-shell
       title="Calendario"
@@ -17,19 +18,10 @@ type ReleaseType = 'album' | 'single' | 'ep';
     >
       <div class="filter-bar">
         <span>Filtra il calendario</span>
-        <div class="filters" role="group" aria-label="Filtra per tipo">
-          @for (t of allTypes; track t) {
-            <button
-              type="button"
-              class="chip"
-              [class.on]="selected().includes(t)"
-              [attr.aria-pressed]="selected().includes(t)"
-              (click)="toggle(t)"
-            >
-              {{ label(t) }}
-            </button>
-          }
-        </div>
+        <app-release-type-filter
+          [selected]="selected()"
+          (selectedChange)="onTypes($event)"
+        />
       </div>
 
       @if (loading()) {
@@ -43,12 +35,12 @@ type ReleaseType = 'album' | 'single' | 'ep';
           @for (d of days(); track d.date) {
             <section class="day">
               <div class="date">
-                <strong>{{ d.date | date: 'dd' : undefined : 'it-IT' }}</strong>
-                <span>{{ d.date | date: 'MMM' : undefined : 'it-IT' }}</span>
-                <small>{{ d.date | date: 'y' : undefined : 'it-IT' }}</small>
+                <strong>{{ d.date | date: 'dd' }}</strong>
+                <span>{{ d.date | date: 'MMM' }}</span>
+                <small>{{ d.date | date: 'y' }}</small>
               </div>
               <div class="day-content">
-                <h2>{{ d.date | date: 'EEEE' : undefined : 'it-IT' }}</h2>
+                <h2>{{ d.date | date: 'EEEE' }}</h2>
                 <app-release-list [releases]="d.releases" [compact]="true" />
               </div>
             </section>
@@ -76,26 +68,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-      }
-      .filters {
-        display: flex;
-        gap: 0.35rem;
-      }
-      .chip {
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--ink);
-        border-radius: 999px;
-        padding: 0.4rem 0.8rem;
-        font: inherit;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      .chip.on {
-        color: var(--surface);
-        background: var(--ink);
-        border-color: var(--ink);
       }
       .days {
         display: flex;
@@ -142,13 +114,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         letter-spacing: -0.02em;
         text-transform: capitalize;
       }
-      .state {
-        color: var(--muted);
-        padding: 1.5rem 0;
-      }
-      .state.error {
-        color: #9e382b;
-      }
       @media (max-width: 560px) {
         .day {
           grid-template-columns: 62px minmax(0, 1fr);
@@ -161,32 +126,15 @@ type ReleaseType = 'album' | 'single' | 'ep';
     `,
   ],
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent extends FilteredReleasesPage implements OnInit {
   private readonly api = inject(ApiService);
-  readonly allTypes: ReleaseType[] = ['album', 'single', 'ep'];
-  readonly selected = signal<ReleaseType[]>(['album', 'single', 'ep']);
   readonly days = signal<{ date: string; releases: ReleaseItem[] }[]>([]);
-  readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.load();
   }
 
-  label(t: ReleaseType): string {
-    if (t === 'album') return 'Album';
-    if (t === 'ep') return 'EP';
-    return 'Single';
-  }
-
-  toggle(t: ReleaseType): void {
-    const cur = this.selected();
-    const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
-    this.selected.set(next.length ? next : cur);
-    this.load();
-  }
-
-  private load(): void {
+  protected load(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api.feedCalendar(this.selected()).subscribe({
@@ -197,7 +145,7 @@ export class CalendarComponent implements OnInit {
       error: (err) => {
         this.loading.set(false);
         this.error.set(
-          err?.error?.message || 'Impossibile caricare il calendario.',
+          extractApiError(err, 'Impossibile caricare il calendario.'),
         );
       },
     });

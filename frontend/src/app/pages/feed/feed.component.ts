@@ -1,14 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ApiService, ReleaseItem } from '../../core/api.service';
+import { extractApiError } from '../../core/api-error';
+import { RELEASE_WINDOW_DAYS } from '../../core/release-window';
 import { ShellComponent } from '../../shared/shell.component';
 import { ReleaseListComponent } from '../../shared/release-list.component';
-
-type ReleaseType = 'album' | 'single' | 'ep';
+import { ReleaseTypeFilterComponent } from '../../shared/release-type-filter.component';
+import { FilteredReleasesPage } from '../../shared/filtered-releases-page';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
-  imports: [ShellComponent, ReleaseListComponent],
+  imports: [ShellComponent, ReleaseListComponent, ReleaseTypeFilterComponent],
   template: `
     <app-shell
       title="Nuove uscite"
@@ -17,19 +19,10 @@ type ReleaseType = 'album' | 'single' | 'ep';
       <div class="toolbar">
         <div class="filter-block">
           <span class="filter-label">Mostra</span>
-          <div class="filters" role="group" aria-label="Filtra per tipo">
-            @for (t of allTypes; track t) {
-              <button
-                type="button"
-                class="chip"
-                [class.on]="selected().includes(t)"
-                [attr.aria-pressed]="selected().includes(t)"
-                (click)="toggle(t)"
-              >
-                {{ label(t) }}
-              </button>
-            }
-          </div>
+          <app-release-type-filter
+            [selected]="selected()"
+            (selectedChange)="onTypes($event)"
+          />
         </div>
         <button
           type="button"
@@ -57,12 +50,12 @@ type ReleaseType = 'album' | 'single' | 'ep';
         <div class="state empty">
           <span class="empty-record" aria-hidden="true"></span>
           <strong>Lo scaffale è ancora vuoto.</strong>
-          <span>Cerca nuove uscite per sincronizzare gli ultimi 90 giorni.</span>
+          <span>Cerca nuove uscite per sincronizzare gli ultimi {{ windowDays }} giorni.</span>
         </div>
       } @else {
         <div class="result-line">
           <span>{{ releases().length }} uscite</span>
-          <span>Ultimi 90 giorni</span>
+          <span>Ultimi {{ windowDays }} giorni</span>
         </div>
         <app-release-list [releases]="releases()" />
       }
@@ -92,28 +85,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-      }
-      .filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-      }
-      .chip {
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--ink);
-        border-radius: 999px;
-        padding: 0.45rem 0.85rem;
-        font: inherit;
-        font-size: 0.82rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 150ms ease, color 150ms ease;
-      }
-      .chip.on {
-        color: var(--surface);
-        background: var(--ink);
-        border-color: var(--ink);
       }
       .refresh {
         display: inline-flex;
@@ -149,22 +120,6 @@ type ReleaseType = 'album' | 'single' | 'ep';
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-      }
-      .state {
-        min-height: 280px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        padding: 2rem;
-        text-align: center;
-        color: var(--muted);
-        background: rgba(255, 255, 255, 0.32);
-        border: 1px solid var(--line);
-      }
-      .state.error {
-        color: #9e382b;
       }
       .state strong {
         color: var(--ink);
@@ -224,29 +179,13 @@ type ReleaseType = 'album' | 'single' | 'ep';
     `,
   ],
 })
-export class FeedComponent implements OnInit {
+export class FeedComponent extends FilteredReleasesPage implements OnInit {
   private readonly api = inject(ApiService);
-  readonly allTypes: ReleaseType[] = ['album', 'single', 'ep'];
-  readonly selected = signal<ReleaseType[]>(['album', 'single', 'ep']);
   readonly releases = signal<ReleaseItem[]>([]);
-  readonly loading = signal(true);
   readonly syncing = signal(false);
-  readonly error = signal<string | null>(null);
+  readonly windowDays = RELEASE_WINDOW_DAYS;
 
   ngOnInit(): void {
-    this.load();
-  }
-
-  label(t: ReleaseType): string {
-    if (t === 'album') return 'Album';
-    if (t === 'ep') return 'EP';
-    return 'Single';
-  }
-
-  toggle(t: ReleaseType): void {
-    const cur = this.selected();
-    const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
-    this.selected.set(next.length ? next : cur);
     this.load();
   }
 
@@ -260,14 +199,12 @@ export class FeedComponent implements OnInit {
       },
       error: (err) => {
         this.syncing.set(false);
-        this.error.set(
-          err?.error?.message || 'Sincronizzazione non riuscita.',
-        );
+        this.error.set(extractApiError(err, 'Sincronizzazione non riuscita.'));
       },
     });
   }
 
-  private load(): void {
+  protected load(): void {
     this.loading.set(true);
     this.error.set(null);
     this.api.feedReleases(this.selected()).subscribe({
@@ -277,7 +214,7 @@ export class FeedComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message || 'Impossibile caricare il feed.');
+        this.error.set(extractApiError(err, 'Impossibile caricare il feed.'));
       },
     });
   }

@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ReleaseItem } from '../core/api.service';
+import { ReleaseTypeLabelPipe } from '../core/release-type-label';
 
 @Component({
   selector: 'app-release-list',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, ReleaseTypeLabelPipe],
   template: `
     <ul class="list" [class.compact]="compact">
       @for (r of releases; track r.id; let i = $index) {
@@ -21,8 +22,8 @@ import { ReleaseItem } from '../core/api.service';
             </div>
             <div class="meta">
               <div class="sub">
-                <span class="type">{{ typeLabel(r.releaseType) }}</span>
-                <span>{{ r.releaseDate | date: 'd MMM y' : undefined : 'it-IT' }}</span>
+                <span class="type">{{ r.releaseType | releaseTypeLabel }}</span>
+                <span>{{ r.releaseDate | date: 'd MMM y' }}</span>
               </div>
               <div class="title">{{ r.title }}</div>
               <div class="artists">{{ artistNames(r) }}</div>
@@ -214,11 +215,5 @@ export class ReleaseListComponent {
 
   initial(r: ReleaseItem): string {
     return r.title.trim().charAt(0).toUpperCase() || '♪';
-  }
-
-  typeLabel(t: ReleaseItem['releaseType']): string {
-    if (t === 'album') return 'Album';
-    if (t === 'ep') return 'EP';
-    return 'Single';
   }
 }

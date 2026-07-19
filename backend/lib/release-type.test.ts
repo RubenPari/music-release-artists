@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyReleaseType } from "./spotify";
+import { classifyReleaseType } from "./release-type";
 
 describe("classifyReleaseType", () => {
   it("maps album", () => {

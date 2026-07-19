@@ -1,6 +1,32 @@
 import { exec, query, queryOne } from "../db/db";
 import { config } from "../lib/config";
 import { sendDigestEmail, sendPerReleaseEmail } from "./email";
+import type { ReleaseEmailItem } from "./email";
+
+const ARTISTS_SUBQUERY = `COALESCE(
+  (SELECT string_agg(a.name, ', ' ORDER BY a.name)
+   FROM release_artists ra JOIN artists a ON a.id = ra.artist_id
+   WHERE ra.release_id = r.id),
+  ''
+)`;
+
+interface ReleaseEmailRow {
+  title: string;
+  release_type: string;
+  release_date: string;
+  spotify_url: string;
+  artists: string;
+}
+
+function toReleaseEmailItem(row: ReleaseEmailRow): ReleaseEmailItem {
+  return {
+    title: row.title,
+    artists: row.artists,
+    releaseType: row.release_type,
+    releaseDate: row.release_date,
+    spotifyUrl: row.spotify_url,
+  };
+}
 
 export async function enqueuePerReleaseNotifications(
   userId: string,
@@ -34,25 +60,12 @@ export async function enqueuePerReleaseNotifications(
 export async function processPerReleaseOutbox(userId?: string): Promise<void> {
   if (!config.emailEnabled()) return;
 
-  const rows = await query<{
-    id: string;
-    user_id: string;
-    release_id: string;
-    email: string;
-    title: string;
-    release_type: string;
-    release_date: string;
-    spotify_url: string;
-    artists: string;
-  }>(
+  const rows = await query<
+    ReleaseEmailRow & { id: string; user_id: string; release_id: string; email: string }
+  >(
     `SELECT o.id, o.user_id, o.release_id, np.email,
             r.title, r.release_type, r.release_date::text, r.spotify_url,
-            COALESCE(
-              (SELECT string_agg(a.name, ', ' ORDER BY a.name)
-               FROM release_artists ra JOIN artists a ON a.id = ra.artist_id
-               WHERE ra.release_id = r.id),
-              ''
-            ) AS artists
+            ${ARTISTS_SUBQUERY} AS artists
      FROM email_outbox o
      JOIN notification_preferences np ON np.user_id = o.user_id
      JOIN releases r ON r.id = o.release_id
@@ -67,13 +80,7 @@ export async function processPerReleaseOutbox(userId?: string): Promise<void> {
 
   for (const row of rows) {
     try {
-      await sendPerReleaseEmail(row.user_id, row.email, {
-        title: row.title,
-        artists: row.artists,
-        releaseType: row.release_type,
-        releaseDate: row.release_date,
-        spotifyUrl: row.spotify_url,
-      });
+      await sendPerReleaseEmail(row.user_id, row.email, toReleaseEmailItem(row));
       await exec(
         `UPDATE email_outbox SET status = 'sent', sent_at = NOW() WHERE id = $1`,
         [row.id],
@@ -106,21 +113,9 @@ export async function sendDailyDigests(): Promise<void> {
   );
 
   for (const user of users) {
-    const items = await query<{
-      release_id: string;
-      title: string;
-      release_type: string;
-      release_date: string;
-      spotify_url: string;
-      artists: string;
-    }>(
+    const items = await query<ReleaseEmailRow & { release_id: string }>(
       `SELECT ur.release_id, r.title, r.release_type, r.release_date::text, r.spotify_url,
-              COALESCE(
-                (SELECT string_agg(a.name, ', ' ORDER BY a.name)
-                 FROM release_artists ra JOIN artists a ON a.id = ra.artist_id
-                 WHERE ra.release_id = r.id),
-                ''
-              ) AS artists
+              ${ARTISTS_SUBQUERY} AS artists
        FROM user_releases ur
        JOIN releases r ON r.id = ur.release_id
        WHERE ur.user_id = $1 AND ur.notified_at IS NULL
@@ -131,17 +126,7 @@ export async function sendDailyDigests(): Promise<void> {
     if (items.length === 0) continue;
 
     try {
-      await sendDigestEmail(
-        user.user_id,
-        user.email,
-        items.map((i) => ({
-          title: i.title,
-          artists: i.artists,
-          releaseType: i.release_type,
-          releaseDate: i.release_date,
-          spotifyUrl: i.spotify_url,
-        })),
-      );
+      await sendDigestEmail(user.user_id, user.email, items.map(toReleaseEmailItem));
 
       await exec(
         `INSERT INTO email_outbox (user_id, release_id, kind, status, sent_at)

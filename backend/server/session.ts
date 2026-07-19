@@ -1,8 +1,9 @@
-import type { Context } from "hono";
+import type { Context, MiddlewareHandler } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { exec, queryOne } from "../db/db";
 import { config } from "../lib/config";
 import { hashToken, randomToken } from "../lib/crypto";
+import type { AppVariables } from "./types";
 
 export interface SessionUser {
   userID: string;
@@ -80,6 +81,13 @@ export async function requireUser(c: Context): Promise<SessionUser> {
   if (!user) throw new AuthError("sessione non valida");
   return user;
 }
+
+export const authMiddleware: MiddlewareHandler<{
+  Variables: AppVariables;
+}> = async (c, next) => {
+  c.set("user", await requireUser(c));
+  await next();
+};
 
 export class AuthError extends Error {
   status = 401;

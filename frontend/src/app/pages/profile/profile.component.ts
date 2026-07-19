@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService, Profile } from '../../core/api.service';
+import { extractApiError } from '../../core/api-error';
 import { ShellComponent } from '../../shared/shell.component';
 
 @Component({
@@ -114,8 +115,8 @@ import { ShellComponent } from '../../shared/shell.component';
             <h3>Ultimo aggiornamento</h3>
             @if (p.lastSyncAt) {
               <p class="sync-time">
-                {{ p.lastSyncAt | date: 'd MMM' : undefined : 'it-IT' }}
-                <span>{{ p.lastSyncAt | date: 'HH:mm' : undefined : 'it-IT' }}</span>
+                {{ p.lastSyncAt | date: 'd MMM' }}
+                <span>{{ p.lastSyncAt | date: 'HH:mm' }}</span>
               </p>
               <p class="sync-status">
                 <i [class.ok-dot]="p.lastSyncStatus === 'success'"></i>
@@ -363,12 +364,6 @@ import { ShellComponent } from '../../shared/shell.component';
         font-weight: 700;
         cursor: pointer;
       }
-      .state {
-        color: var(--muted);
-      }
-      .state.error {
-        color: #9e382b;
-      }
       @media (max-width: 760px) {
         .profile-grid {
           display: block;
@@ -401,7 +396,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err?.error?.message || 'Profilo non disponibile.');
+        this.error.set(extractApiError(err, 'Profilo non disponibile.'));
       },
     });
   }
@@ -438,7 +433,7 @@ export class ProfileComponent implements OnInit {
         setTimeout(() => this.saved.set(false), 2000);
       },
       error: (err) => {
-        this.error.set(err?.error?.message || 'Salvataggio non riuscito.');
+        this.error.set(extractApiError(err, 'Salvataggio non riuscito.'));
       },
     });
   }
