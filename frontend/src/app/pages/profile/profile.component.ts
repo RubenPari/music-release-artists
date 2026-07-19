@@ -363,12 +363,6 @@ import { ShellComponent } from '../../shared/shell.component';
         font-weight: 700;
         cursor: pointer;
       }
-      .state {
-        color: var(--muted);
-      }
-      .state.error {
-        color: #9e382b;
-      }
       @media (max-width: 760px) {
         .profile-grid {
           display: block;
