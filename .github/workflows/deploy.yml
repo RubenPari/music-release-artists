@@ -55,6 +55,7 @@ jobs:
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           TOKEN_ENCRYPTION_KEY: ${{ secrets.TOKEN_ENCRYPTION_KEY }}
           MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
           EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED || 'false' }}
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           BREVO_SENDER_EMAIL: ${{ vars.BREVO_SENDER_EMAIL }}

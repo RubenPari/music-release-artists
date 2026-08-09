@@ -1,13 +1,11 @@
 # DigitalOcean App Platform spec.
-# Before go-live, replace placeholders:
-#   - region (must match the Managed PostgreSQL cluster)
-#   - databases[].cluster_name
-#   - domains[].domain / zone
-#   - github.repo if the GitHub owner/name differs
+# Before go-live, set domains in the control panel (or add a `domains:` block).
+# cluster_name must match the existing Managed PostgreSQL cluster.
 #
-# Secrets (${SPOTIFY_CLIENT_SECRET}, etc.) are substituted by
+# Secrets (SPOTIFY_CLIENT_SECRET, SESSION_SECRET, etc.) are substituted by
 # digitalocean/app_action from GitHub Actions env at deploy time.
 # Bindable vars with dots (${db.DATABASE_URL}, ${APP_URL}) are preserved.
+# Source uses public git clone URL (DO GitHub OAuth not required).
 
 name: music-release-artists
 region: fra
@@ -15,11 +13,6 @@ region: fra
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
-
-domains:
-  - domain: music.example.com
-    type: PRIMARY
-    zone: example.com
 
 ingress:
   rules:
@@ -39,21 +32,20 @@ databases:
     engine: PG
     version: "16"
     production: true
-    cluster_name: REPLACE_WITH_EXISTING_CLUSTER_NAME
+    cluster_name: film-randomized-db
     db_name: music
     db_user: mra_app
 
 services:
   - name: backend
-    github:
-      repo: RubenPari/music-release-artists
+    git:
+      repo_clone_url: https://github.com/RubenPari/music-release-artists.git
       branch: main
-      deploy_on_push: false
     source_dir: backend
-    dockerfile_path: Dockerfile
+    dockerfile_path: backend/Dockerfile
     http_port: 4000
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-s-1vcpu-0.5gb
     health_check:
       http_path: /health/live
       initial_delay_seconds: 10
@@ -71,25 +63,29 @@ services:
       - key: DATABASE_URL
         scope: RUN_TIME
         value: ${db.DATABASE_URL}
+      - key: DATABASE_SSL_CA
+        scope: RUN_TIME
+        type: SECRET
+        value: "${DATABASE_SSL_CA}"
       - key: DATABASE_POOL_MAX
         scope: RUN_TIME
         value: "8"
       - key: SPOTIFY_CLIENT_ID
         scope: RUN_TIME
         type: SECRET
-        value: ${SPOTIFY_CLIENT_ID}
+        value: "${SPOTIFY_CLIENT_ID}"
       - key: SPOTIFY_CLIENT_SECRET
         scope: RUN_TIME
         type: SECRET
-        value: ${SPOTIFY_CLIENT_SECRET}
+        value: "${SPOTIFY_CLIENT_SECRET}"
       - key: SESSION_SECRET
         scope: RUN_TIME
         type: SECRET
-        value: ${SESSION_SECRET}
+        value: "${SESSION_SECRET}"
       - key: TOKEN_ENCRYPTION_KEY
         scope: RUN_TIME
         type: SECRET
-        value: ${TOKEN_ENCRYPTION_KEY}
+        value: "${TOKEN_ENCRYPTION_KEY}"
       - key: APP_BASE_URL
         scope: RUN_TIME
         value: ${APP_URL}/api
@@ -98,31 +94,30 @@ services:
         value: ${APP_URL}
       - key: EMAIL_ENABLED
         scope: RUN_TIME
-        value: ${EMAIL_ENABLED}
+        value: "${EMAIL_ENABLED}"
       - key: BREVO_API_KEY
         scope: RUN_TIME
         type: SECRET
-        value: ${BREVO_API_KEY}
+        value: "${BREVO_API_KEY}"
       - key: BREVO_SENDER_EMAIL
         scope: RUN_TIME
-        value: ${BREVO_SENDER_EMAIL}
+        value: "${BREVO_SENDER_EMAIL}"
       - key: BREVO_SENDER_NAME
         scope: RUN_TIME
-        value: ${BREVO_SENDER_NAME}
+        value: "${BREVO_SENDER_NAME}"
       - key: RELEASE_WINDOW_DAYS
         scope: RUN_TIME
         value: "90"
 
   - name: frontend
-    github:
-      repo: RubenPari/music-release-artists
+    git:
+      repo_clone_url: https://github.com/RubenPari/music-release-artists.git
       branch: main
-      deploy_on_push: false
     source_dir: frontend
-    dockerfile_path: Dockerfile
+    dockerfile_path: frontend/Dockerfile
     http_port: 80
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-s-1vcpu-0.5gb
     health_check:
       http_path: /
       initial_delay_seconds: 5
@@ -134,14 +129,13 @@ services:
 jobs:
   - name: migrate
     kind: PRE_DEPLOY
-    github:
-      repo: RubenPari/music-release-artists
+    git:
+      repo_clone_url: https://github.com/RubenPari/music-release-artists.git
       branch: main
-      deploy_on_push: false
     source_dir: backend
-    dockerfile_path: Dockerfile
+    dockerfile_path: backend/Dockerfile
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-s-1vcpu-0.5gb
     run_command: npm run migrate
     envs:
       - key: NODE_ENV
@@ -150,4 +144,8 @@ jobs:
       - key: DATABASE_URL
         scope: RUN_TIME
         type: SECRET
-        value: ${MIGRATION_DATABASE_URL}
+        value: "${MIGRATION_DATABASE_URL}"
+      - key: DATABASE_SSL_CA
+        scope: RUN_TIME
+        type: SECRET
+        value: "${DATABASE_SSL_CA}"

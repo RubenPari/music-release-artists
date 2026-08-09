@@ -6,15 +6,19 @@ let pool: Pool | null = null;
 
 export function getPool(): Pool {
   if (!pool) {
-    const caPath = config.databaseSslCaPath();
+    const ca =
+      config.databaseSslCa() ||
+      (config.databaseSslCaPath()
+        ? readFileSync(config.databaseSslCaPath(), "utf8")
+        : "");
     const connectionString = config.databaseUrl();
     pool = new Pool({
-      connectionString: caPath ? withoutSslMode(connectionString) : connectionString,
+      connectionString: ca ? withoutSslMode(connectionString) : connectionString,
       max: config.databasePoolMax(),
-      ...(caPath
+      ...(ca
         ? {
             ssl: {
-              ca: readFileSync(caPath, "utf8"),
+              ca,
               rejectUnauthorized: true,
             },
           }

@@ -37,6 +37,8 @@ function boundedPositiveInteger(
 export const config = {
   databaseUrl: () => required("DATABASE_URL"),
   databaseSslCaPath: () => process.env.DATABASE_SSL_CA_PATH || "",
+  /** PEM contents of the DB CA (App Platform secret); alternative to DATABASE_SSL_CA_PATH. */
+  databaseSslCa: () => process.env.DATABASE_SSL_CA || "",
   databasePoolMax: () => boundedPositiveInteger("DATABASE_POOL_MAX", 8, 8),
   spotifyClientId: () => required("SPOTIFY_CLIENT_ID"),
   spotifyClientSecret: () => required("SPOTIFY_CLIENT_SECRET"),
