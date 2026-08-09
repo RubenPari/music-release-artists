@@ -11,9 +11,11 @@ export function getPool(): Pool {
       (config.databaseSslCaPath()
         ? readFileSync(config.databaseSslCaPath(), "utf8")
         : "");
-    const connectionString = config.databaseUrl();
+    const connectionString = ca
+      ? withoutSslMode(config.databaseUrl())
+      : withLibpqSslCompat(config.databaseUrl());
     pool = new Pool({
-      connectionString: ca ? withoutSslMode(connectionString) : connectionString,
+      connectionString,
       max: config.databasePoolMax(),
       ...(ca
         ? {
@@ -26,6 +28,14 @@ export function getPool(): Pool {
     });
   }
   return pool;
+}
+
+function withLibpqSslCompat(connectionString: string): string {
+  const url = new URL(connectionString);
+  if (url.searchParams.get("sslmode") && !url.searchParams.has("uselibpqcompat")) {
+    url.searchParams.set("uselibpqcompat", "true");
+  }
+  return url.toString();
 }
 
 function withoutSslMode(connectionString: string): string {
