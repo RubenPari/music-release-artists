@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "transcripts": {
+    "538224b1-7cd3-4b15-adab-8caa1c4cf8a2/538224b1-7cd3-4b15-adab-8caa1c4cf8a2.jsonl": {
+      "mtime": 1784364877.879972945
+    },
+    "538224b1-7cd3-4b15-adab-8caa1c4cf8a2/subagents/b8ca8150-adf2-45dc-8abc-5c49eadc4a69.jsonl": {
+      "mtime": 1784364705.426954062
+    },
+    "547b1c01-991e-4a00-a41b-e7630061ab63/547b1c01-991e-4a00-a41b-e7630061ab63.jsonl": {
+      "mtime": 1784371635.994724154
+    },
+    "547b1c01-991e-4a00-a41b-e7630061ab63/subagents/22bb78eb-8a5f-4513-b6ff-7b260cf524d5.jsonl": {
+      "mtime": 1784370213.695810739
+    },
+    "547b1c01-991e-4a00-a41b-e7630061ab63/subagents/327c2637-593d-405f-abb9-1c2a8df09a62.jsonl": {
+      "mtime": 1784369993.245616399
+    },
+    "547b1c01-991e-4a00-a41b-e7630061ab63/subagents/7251e967-3118-457b-b946-4a9375e42ddc.jsonl": {
+      "mtime": 1784366086.446055650
+    },
+    "b652198b-e2fb-4443-8341-485dd9dba95b/b652198b-e2fb-4443-8341-485dd9dba95b.jsonl": {
+      "mtime": 1784449609.365023554
+    },
+    "b652198b-e2fb-4443-8341-485dd9dba95b/subagents/3a79767b-7787-437a-9cdf-1ebac0a12652.jsonl": {
+      "mtime": 1784449613.290306466
+    },
+    "b652198b-e2fb-4443-8341-485dd9dba95b/subagents/96ad285d-1d21-48b1-85f7-dc7ab142a4e7.jsonl": {
+      "mtime": 1784448785.271563304
+    }
+  }
+}

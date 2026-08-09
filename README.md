@@ -67,33 +67,32 @@ cd frontend && npm ci && npx ng serve --proxy-config proxy.conf.json
 ## Struttura
 
 ```
-backend/     API, sync, email, migrations
-frontend/    Angular SPA
-docker-compose.yml
+backend/              API, sync, email, migrations
+frontend/             Angular SPA
+.do/app.yaml          DigitalOcean App Platform spec
+deploy/               template env production (riferimento)
+docker-compose.yml    stack locale
 ```
 
-## Deploy production su DigitalOcean
+## Deploy production su DigitalOcean App Platform
 
-Il target production è un Droplet Ubuntu 24.04 con Docker Compose e un cluster
-DigitalOcean Managed PostgreSQL. Caddy espone soltanto le porte 80/443 e gestisce
-automaticamente HTTPS; frontend e backend restano sulla rete Docker privata.
+Il target production è **App Platform** (frontend + backend da Dockerfile) con un
+cluster **Managed PostgreSQL** già esistente. HTTPS e routing sono gestiti dalla
+piattaforma: `/api` → backend (prefix rimosso), `/` → frontend. Il backend resta
+a **una sola replica** perché i cron (`node-cron`) girano in-process.
 
 ### 1. Risorse DigitalOcean
 
-1. Crea un progetto e una VPC nella regione scelta.
-2. Crea un Droplet Ubuntu 24.04 nella stessa VPC, assegna un Reserved IP e abilita
-   Monitoring e backup.
-3. Crea un cluster Managed PostgreSQL 16 nella stessa VPC.
-4. Aggiungi il Droplet come unica trusted source del database e scarica il
-   certificato CA.
-5. Applica un Cloud Firewall:
-   - TCP 80/443 da Internet;
-   - TCP 22 solo dall'IP amministrativo;
-   - nessuna esposizione pubblica di 4000, 4200 o 5432.
+1. Crea (o riusa) un cluster Managed PostgreSQL 16 nella regione scelta.
+2. Compila [`.do/app.yaml`](.do/app.yaml): `region`, `databases[].cluster_name`,
+   dominio (`domains`) e, se necessario, `github.repo`.
+3. Al primo deploy, App Platform si attacca al cluster (`production: true` +
+   `cluster_name`) e viene aggiunta come trusted source. Verifica in
+   **Databases → Network Access**.
+4. Collega il repository GitHub all’account DigitalOcean (App Platform → GitHub).
 
-Sul Droplet installa Docker Engine con il plugin Compose e crea l'utente `deploy`
-con accesso SSH a chiave. La pipeline richiede che questo utente possa eseguire
-senza password i comandi di deploy con `sudo`.
+Non serve Droplet, Caddy né registry GHCR: App Platform builda dai Dockerfile
+nel repo.
 
 ### 2. Utenti PostgreSQL
 
@@ -118,82 +117,62 @@ ALTER DEFAULT PRIVILEGES FOR ROLE mra_migrator IN SCHEMA public
   GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO mra_app;
 ```
 
-### 3. File protetti sul Droplet
+Il runtime usa `mra_app` tramite `${db.DATABASE_URL}`. Il job `PRE_DEPLOY`
+`migrate` usa il secret `MIGRATION_DATABASE_URL` con ruolo `mra_migrator`.
+Su App Platform preferisci `sslmode=require` (niente file CA montato). Vedi
+[`deploy/app.env.example`](deploy/app.env.example) e
+[`deploy/migration.env.example`](deploy/migration.env.example).
 
-```bash
-sudo install -d -m 0750 -o root -g deploy /etc/music-release-artists
-sudo install -d -m 0755 /opt/music-release-artists/deploy
-```
+### 3. Dominio e OAuth
 
-Copia e compila i template:
+Il repository usa `music.example.com` come placeholder in `.do/app.yaml`. Prima
+del go-live:
 
-- [`deploy/env.production.example`](deploy/env.production.example) →
-  `/etc/music-release-artists/deploy.env`
-- [`deploy/app.env.example`](deploy/app.env.example) →
-  `/etc/music-release-artists/app.env`
-- [`deploy/migration.env.example`](deploy/migration.env.example) →
-  `/etc/music-release-artists/migration.env`
-- CA DigitalOcean → `/etc/music-release-artists/ca-certificate.crt`
-- solo per immagini GHCR private: PAT GitHub con `read:packages` →
-  `/etc/music-release-artists/ghcr-token`
-
-Proteggi tutti i file:
-
-```bash
-sudo chown root:deploy /etc/music-release-artists/*
-sudo chmod 0640 /etc/music-release-artists/*
-```
-
-Il runtime usa `mra_app`; soltanto [`deploy/deploy.sh`](deploy/deploy.sh) legge
-`migration.env` per applicare le migration con `mra_migrator`. La credenziale
-non viene aggiunta all'ambiente del container backend in esecuzione.
-
-### 4. Dominio e OAuth
-
-Il repository usa `music.example.com` come placeholder. Prima del go-live:
-
-1. sostituiscilo in `deploy.env` e `app.env`;
-2. punta il record A/AAAA al Reserved IP;
+1. sostituisci dominio/zone nello spec;
+2. punta DNS al CNAME / record indicato da App Platform;
 3. imposta nel pannello Spotify l'URI esatta:
-   `https://tuo-dominio/api/auth/spotify/callback`;
-4. imposta `APP_BASE_URL=https://tuo-dominio/api` e
-   `FRONTEND_ORIGIN=https://tuo-dominio`.
+   `https://tuo-dominio/api/auth/spotify/callback`.
 
-Spotify OAuth remoto richiede HTTPS; il deploy non viene eseguito finché la
-variabile GitHub `DEPLOY_ENABLED` non vale `true`.
+`APP_BASE_URL` e `FRONTEND_ORIGIN` derivano da `${APP_URL}` nello spec.
+Spotify OAuth remoto richiede HTTPS; il deploy non parte finché
+`DEPLOY_ENABLED` non vale `true`.
 
-### 5. GitHub Actions
+### 4. GitHub Actions
 
-Crea l'environment GitHub `production`, abilita l'approvazione manuale e aggiungi:
+Crea l'environment GitHub `production`, abilita l'approvazione manuale e
+configura:
 
-- variable: `DEPLOY_ENABLED=true` solo quando DNS e server sono pronti;
-- secrets: `DO_HOST`, `DO_USER`, `DO_SSH_PRIVATE_KEY`, `DO_SSH_HOST_KEY`,
-  `PUBLIC_DOMAIN`.
+**Variables**
+
+| Nome | Note |
+|------|------|
+| `DEPLOY_ENABLED` | `true` solo quando DNS/DB/spec sono pronti |
+| `PUBLIC_DOMAIN` | es. `music.example.com` (readiness check post-deploy) |
+| `EMAIL_ENABLED` | default `false` |
+| `BREVO_SENDER_EMAIL` | solo se email abilitate |
+| `BREVO_SENDER_NAME` | opzionale, default `Uscite` |
+
+**Secrets**
+
+| Nome | Note |
+|------|------|
+| `DIGITALOCEAN_ACCESS_TOKEN` | PAT DigitalOcean con scope Apps |
+| `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | |
+| `SESSION_SECRET` / `TOKEN_ENCRYPTION_KEY` | |
+| `MIGRATION_DATABASE_URL` | URL `mra_migrator` con `sslmode=require` |
+| `BREVO_API_KEY` | richiesto se `EMAIL_ENABLED=true` |
 
 La pipeline [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
 1. esegue test/typecheck backend e build Angular;
-2. pubblica immagini GHCR `backend` e `frontend` con tag `sha-<commit>`;
-3. carica la configurazione sul Droplet;
-4. applica migration one-shot, avvia la release e controlla
-   `/api/health/ready`;
-5. ripristina automaticamente il tag precedente se la readiness fallisce.
+2. aggiorna/deploya l’app con [`digitalocean/app_action/deploy@v2`](https://github.com/digitalocean/app_action) da `.do/app.yaml`;
+3. il job App Platform `migrate` (`PRE_DEPLOY`) applica le migration;
+4. opzionalmente verifica `https://$PUBLIC_DOMAIN/api/health/ready`.
 
-Le immagini pubbliche vengono scaricate senza credenziali. Per immagini private,
-il token GHCR sul Droplet deve appartenere all'utente indicato da
-`GHCR_USERNAME` in `deploy.env`. Le migration production devono essere additive
-e retrocompatibili: il rollback cambia le immagini, non esegue migration `down`.
+Le migration production devono essere additive e retrocompatibili: un rollback
+di App Platform non esegue migration `down`.
 
-### 6. Avvio al reboot e monitoraggio
-
-Installa l'unità systemd dopo il primo upload della pipeline:
-
-```bash
-sudo cp /opt/music-release-artists/deploy/music-release-artists.service \
-  /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now music-release-artists
-```
+### 5. Monitoraggio
 
 Configura un DigitalOcean Uptime Check su:
 
@@ -201,6 +180,5 @@ Configura un DigitalOcean Uptime Check su:
 https://tuo-dominio/api/health/ready
 ```
 
-`/api/health/live` verifica il processo, mentre `/api/health/ready` verifica
-anche la connessione PostgreSQL. Il backend deve restare a una replica perché
-esegue internamente i job periodici di sync e invio email.
+`/api/health/live` verifica il processo; `/api/health/ready` verifica anche
+PostgreSQL. Non scalare il backend oltre una istanza.

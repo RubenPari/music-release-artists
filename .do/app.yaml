@@ -1,0 +1,153 @@
+# DigitalOcean App Platform spec.
+# Before go-live, replace placeholders:
+#   - region (must match the Managed PostgreSQL cluster)
+#   - databases[].cluster_name
+#   - domains[].domain / zone
+#   - github.repo if the GitHub owner/name differs
+#
+# Secrets (${SPOTIFY_CLIENT_SECRET}, etc.) are substituted by
+# digitalocean/app_action from GitHub Actions env at deploy time.
+# Bindable vars with dots (${db.DATABASE_URL}, ${APP_URL}) are preserved.
+
+name: music-release-artists
+region: fra
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
+domains:
+  - domain: music.example.com
+    type: PRIMARY
+    zone: example.com
+
+ingress:
+  rules:
+    - match:
+        path:
+          prefix: /api
+      component:
+        name: backend
+    - match:
+        path:
+          prefix: /
+      component:
+        name: frontend
+
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    cluster_name: REPLACE_WITH_EXISTING_CLUSTER_NAME
+    db_name: music
+    db_user: mra_app
+
+services:
+  - name: backend
+    github:
+      repo: RubenPari/music-release-artists
+      branch: main
+      deploy_on_push: false
+    source_dir: backend
+    dockerfile_path: Dockerfile
+    http_port: 4000
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /health/live
+      initial_delay_seconds: 10
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 6
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: PORT
+        scope: RUN_TIME
+        value: "4000"
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      - key: DATABASE_POOL_MAX
+        scope: RUN_TIME
+        value: "8"
+      - key: SPOTIFY_CLIENT_ID
+        scope: RUN_TIME
+        type: SECRET
+        value: ${SPOTIFY_CLIENT_ID}
+      - key: SPOTIFY_CLIENT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: ${SPOTIFY_CLIENT_SECRET}
+      - key: SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: ${SESSION_SECRET}
+      - key: TOKEN_ENCRYPTION_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: ${TOKEN_ENCRYPTION_KEY}
+      - key: APP_BASE_URL
+        scope: RUN_TIME
+        value: ${APP_URL}/api
+      - key: FRONTEND_ORIGIN
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: EMAIL_ENABLED
+        scope: RUN_TIME
+        value: ${EMAIL_ENABLED}
+      - key: BREVO_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: ${BREVO_API_KEY}
+      - key: BREVO_SENDER_EMAIL
+        scope: RUN_TIME
+        value: ${BREVO_SENDER_EMAIL}
+      - key: BREVO_SENDER_NAME
+        scope: RUN_TIME
+        value: ${BREVO_SENDER_NAME}
+      - key: RELEASE_WINDOW_DAYS
+        scope: RUN_TIME
+        value: "90"
+
+  - name: frontend
+    github:
+      repo: RubenPari/music-release-artists
+      branch: main
+      deploy_on_push: false
+    source_dir: frontend
+    dockerfile_path: Dockerfile
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /
+      initial_delay_seconds: 5
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 6
+
+jobs:
+  - name: migrate
+    kind: PRE_DEPLOY
+    github:
+      repo: RubenPari/music-release-artists
+      branch: main
+      deploy_on_push: false
+    source_dir: backend
+    dockerfile_path: Dockerfile
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    run_command: npm run migrate
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: ${MIGRATION_DATABASE_URL}
